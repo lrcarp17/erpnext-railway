@@ -118,6 +118,9 @@ else
 fi
 PORT=${PORT:-8080} SITE=$SITE envsubst '${PORT} ${SITE}' \
   < /templates/nginx/railway.conf.template > /etc/nginx/conf.d/frappe.conf
+# Railway's health check probes from the start; until gunicorn listens, nginx would
+# log each probe as an upstream error.
+for _ in $(seq 60); do (: </dev/tcp/127.0.0.1/8000) 2>/dev/null && break; sleep 1; done
 "${AS_FRAPPE[@]}" nginx -e stderr -g 'daemon off;' 2>&1 &
 echo "railway: serving ERPNext ($version) with $WEB_WORKERS web and $BG_WORKERS background workers"
 
