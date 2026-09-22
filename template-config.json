@@ -1,0 +1,147 @@
+{
+  "buckets": {
+    "596c1c26-e969-453c-9cf7-40eb45aa612b": {
+      "name": "Backups"
+    }
+  },
+  "services": {
+    "044aa209-d741-4395-95ec-1c6a45667935": {
+      "icon": "https://raw.githubusercontent.com/frappe/erpnext/version-16/erpnext/public/images/erpnext-logo.svg",
+      "name": "ERPNext",
+      "build": {
+        "dockerfilePath": "Dockerfile"
+      },
+      "deploy": {
+        "startCommand": null,
+        "healthcheckPath": "/api/method/ping",
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+      },
+      "source": {
+        "repo": "https://github.com/nomideusz/erpnext-railway",
+        "rootDirectory": "/"
+      },
+      "variables": {
+        "PORT": {
+          "defaultValue": "8080",
+          "description": "Port nginx listens on in front of ERPNext - leave as is",
+          "isOptional": false
+        },
+        "ERPNEXT_ADMIN_PASSWORD": {
+          "defaultValue": "${{secret(20)}}",
+          "description": "Password for the 'Administrator' login, set on first boot only - change it in ERPNext afterwards",
+          "isOptional": false
+        },
+        "ERPNEXT_URL": {
+          "defaultValue": "https://${{RAILWAY_PUBLIC_DOMAIN}}",
+          "description": "Public URL for links in emails and PDFs - set it to your custom domain when you add one",
+          "isOptional": false
+        },
+        "ERPNEXT_WEB_WORKERS": {
+          "defaultValue": "",
+          "description": "Web worker processes (4 threads each). Empty = auto: 2, or 1 on plans under 2 GB RAM",
+          "isOptional": true
+        },
+        "ERPNEXT_BG_WORKERS": {
+          "defaultValue": "",
+          "description": "Background job workers. Empty = auto: 2, or 1 on plans under 2 GB RAM",
+          "isOptional": true
+        },
+        "DB_HOST": {
+          "defaultValue": "${{MariaDB.RAILWAY_PRIVATE_DOMAIN}}",
+          "description": "MariaDB host - private network only, leave as is",
+          "isOptional": false
+        },
+        "DB_PORT": {
+          "defaultValue": "3306",
+          "description": "MariaDB port",
+          "isOptional": false
+        },
+        "DB_ROOT_PASSWORD": {
+          "defaultValue": "${{MariaDB.MARIADB_ROOT_PASSWORD}}",
+          "description": "MariaDB root password, used to create the site's database - leave as is",
+          "isOptional": false
+        },
+        "S3_ENDPOINT": {
+          "defaultValue": "${{Backups.ENDPOINT}}",
+          "description": "Nightly backups go to the bundled bucket - leave as is",
+          "isOptional": true
+        },
+        "S3_BUCKET": {
+          "defaultValue": "${{Backups.BUCKET}}",
+          "description": "Backup bucket name. Empty = no nightly backups",
+          "isOptional": true
+        },
+        "S3_REGION": {
+          "defaultValue": "${{Backups.REGION}}",
+          "description": "Backup bucket region",
+          "isOptional": true
+        },
+        "S3_ACCESS_KEY_ID": {
+          "defaultValue": "${{Backups.ACCESS_KEY_ID}}",
+          "description": "Backup bucket credentials",
+          "isOptional": true
+        },
+        "S3_SECRET_ACCESS_KEY": {
+          "defaultValue": "${{Backups.SECRET_ACCESS_KEY}}",
+          "description": "Backup bucket credentials",
+          "isOptional": true
+        },
+        "RAILWAY_HEALTHCHECK_TIMEOUT_SEC": {
+          "defaultValue": "600",
+          "description": "First boot creates the site before the health check can pass",
+          "isOptional": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "30",
+          "description": "Time to finish running jobs and save the job queue on redeploy",
+          "isOptional": false
+        }
+      },
+      "networking": {
+        "serviceDomains": {
+          "<hasDomain>": {}
+        }
+      },
+      "volumeMounts": {
+        "044aa209-d741-4395-95ec-1c6a45667935": {
+          "mountPath": "/home/frappe/frappe-bench/sites"
+        }
+      }
+    },
+    "80f37c84-e8cf-4fbe-b43c-f2dde103b46d": {
+      "icon": "https://raw.githubusercontent.com/devicons/devicon/master/icons/mariadb/mariadb-original.svg",
+      "name": "MariaDB",
+      "build": {},
+      "deploy": {
+        "startCommand": "docker-entrypoint.sh mariadbd --datadir=/var/lib/mysql/data --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --skip-character-set-client-handshake",
+        "healthcheckPath": null,
+        "restartPolicyType": "ON_FAILURE",
+        "restartPolicyMaxRetries": 10
+      },
+      "source": {
+        "image": "mariadb:11.8.9"
+      },
+      "variables": {
+        "MARIADB_ROOT_PASSWORD": {
+          "defaultValue": "${{secret(32)}}",
+          "description": "Auto-generated root password",
+          "isOptional": false
+        },
+        "RAILWAY_DEPLOYMENT_DRAINING_SECONDS": {
+          "defaultValue": "60",
+          "description": "Time for MariaDB to shut down cleanly on redeploy",
+          "isOptional": false
+        }
+      },
+      "networking": {
+        "serviceDomains": {}
+      },
+      "volumeMounts": {
+        "80f37c84-e8cf-4fbe-b43c-f2dde103b46d": {
+          "mountPath": "/var/lib/mysql"
+        }
+      }
+    }
+  }
+}

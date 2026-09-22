@@ -1,0 +1,21 @@
+#!/bin/bash
+# Back up the database, the public and private files and the site config (everything
+# erpnext-restore needs) and upload them to the Railway bucket as one tar per
+# weekday, so the bucket always holds the last 7 nightly backups. Run it by hand
+# (railway ssh) before risky changes.
+set -euo pipefail
+
+cd /home/frappe/frappe-bench
+dir=$(mktemp -d)
+f=/tmp/erpnext-$(date -u +%a).tar
+trap 'rm -rf "$dir" "$f"' EXIT
+chown frappe:frappe "$dir"
+
+setpriv --reuid=frappe --regid=frappe --init-groups env HOME=/home/frappe \
+  bench --site erp backup --with-files --compress --backup-path "$dir" 2>&1
+tar -C "$dir" -cf "$f" .
+# Railway buckets are virtual-hosted style: https://<bucket>.<endpoint host>/<key>
+curl -fsS --aws-sigv4 "aws:amz:${S3_REGION:-auto}:s3" \
+  -u "$S3_ACCESS_KEY_ID:$S3_SECRET_ACCESS_KEY" \
+  -T "$f" "https://$S3_BUCKET.${S3_ENDPOINT#https://}/${f##*/}"
+echo "erpnext-backup: uploaded ${f##*/} ($(du -h "$f" | cut -f1))"

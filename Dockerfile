@@ -1,0 +1,36 @@
+# Pinned: frappe/erpnext:v16 moves with every weekly release, and a silent rebase can
+# break every deploy of this template at once. Bump deliberately; the entrypoint
+# backs up and migrates the site on the first boot of a new version.
+FROM frappe/erpnext:v16.35.0
+
+USER root
+
+# Frappe keeps its cache and job queue in Redis. Running both here, as `bench setup
+# production` does on a server, saves two services and their private-network wiring.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends redis-server \
+    && rm -rf /var/lib/apt/lists/*
+
+# nginx sizes `worker_processes auto` from the host's cores (48 on Railway), and that
+# many workers alone can run a small plan out of memory. Its log files are symlinks
+# to /dev/stdout and /dev/stderr, which the frappe user may not reopen once they are
+# pipes from a root process: errors go to the inherited stderr instead, and access
+# logs are off (Railway's HTTP logs already have every request).
+RUN sed -i -e 's/^worker_processes .*/worker_processes 2;/' \
+      -e 's|^error_log .*|error_log stderr;|' \
+      -e 's|access_log /var/log/nginx/access.log;|access_log off;|' /etc/nginx/nginx.conf
+
+# The Railway volume mounts over sites/ and hides these; the entrypoint puts them back.
+RUN cp sites/apps.txt sites/apps.json /home/frappe/
+
+# The image has no bytecode for whoosh, and Python 3.14 compiling it prints invalid
+# escape SyntaxWarnings to stderr on every boot, where Railway shows them as errors.
+RUN env/bin/python -W ignore -m compileall -q env/lib/python3.*/site-packages/whoosh
+
+COPY nginx.conf /templates/nginx/railway.conf.template
+COPY --chmod=0755 railway-entrypoint.sh /railway-entrypoint.sh
+COPY --chmod=0755 erpnext-backup erpnext-restore /usr/local/bin/
+
+# Starts as root only to chown the Railway volume; every process runs as frappe.
+ENTRYPOINT ["/railway-entrypoint.sh"]
+CMD []
