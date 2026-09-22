@@ -5,5 +5,6 @@
   "category": "CMS",
   "image": "https://raw.githubusercontent.com/frappe/erpnext/version-16/erpnext/public/images/erpnext-logo.svg",
   "card_desc": "ERPNext v16 with realtime updates, background jobs, automatic migrations on upgrade and nightly backups to a Railway bucket.",
-  "id": "24941ada-bf26-435b-bed2-dbb4a13ae6da"
+  "id": "24941ada-bf26-435b-bed2-dbb4a13ae6da",
+  "published": true
 }
