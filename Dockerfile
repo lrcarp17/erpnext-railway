@@ -1,7 +1,6 @@
 # Custom image: Frappe version-16 + apps from apps.json,
 # then the Railway one-service production layout (nginx, redis, entrypoint).
-# Add custom apps to apps.json (url + branch); each must be a public repo or
-# authenticated via GITHUB_TOKEN build arg.
+# For private repos, set GITHUB_TOKEN build arg and use ${GITHUB_TOKEN} in apps.json URLs.
 ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_IMAGE_PREFIX=frappe
 
@@ -9,9 +8,11 @@ FROM ${FRAPPE_IMAGE_PREFIX}/build:${FRAPPE_BRANCH} AS builder
 
 ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_PATH=https://github.com/frappe/frappe
+ARG GITHUB_TOKEN=""
 
 USER frappe
-COPY --chown=frappe:frappe apps.json /opt/frappe/apps.json
+COPY --chown=frappe:frappe apps.json /opt/frappe/apps.json.template
+RUN envsubst < /opt/frappe/apps.json.template > /opt/frappe/apps.json && rm /opt/frappe/apps.json.template
 RUN bench init \
       --apps_path=/opt/frappe/apps.json \
       --frappe-branch=${FRAPPE_BRANCH} \
