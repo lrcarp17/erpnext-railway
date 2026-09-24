@@ -63,7 +63,25 @@ done
 # Frappe redraws its progress bars with \r, which Railway would log as one huge line;
 # keep only each bar's final state.
 bars() { sed -u 's/.*\r//'; }
+# Apps shipped in the image (apps.txt), excluding frappe itself.
+site_apps=()
+while read -r app; do
+  [ -n "$app" ] && [ "$app" != frappe ] && site_apps+=("$app")
+done < sites/apps.txt
+
 installed() { "${AS_FRAPPE[@]}" bench --site "$SITE" list-apps 2>/dev/null | grep -q '^erpnext'; }
+site_has_app() { "${AS_FRAPPE[@]}" bench --site "$SITE" list-apps 2>/dev/null | grep -qE "^$1([[:space:]]|$)"; }
+
+install_missing_apps() {
+  local app
+  for app in "${site_apps[@]}"; do
+    if ! site_has_app "$app"; then
+      echo "railway: installing app $app"
+      "${AS_FRAPPE[@]}" bench --site "$SITE" install-app "$app" 2>&1 | bars
+    fi
+  done
+}
+
 if [ ! -f "sites/$SITE/.railway-installed" ]; then
   # A site folder without the marker is a first boot that died part-way (the site
   # never served a request), unless ERPNext is fully installed and only the marker
@@ -71,25 +89,36 @@ if [ ! -f "sites/$SITE/.railway-installed" ]; then
   if ! { [ -d "sites/$SITE" ] && installed; }; then
     : "${ERPNEXT_ADMIN_PASSWORD:?ERPNEXT_ADMIN_PASSWORD is not set}"
     echo "railway: first boot, creating the ERPNext site (a few minutes)"
+    install_args=()
+    for app in "${site_apps[@]}"; do
+      install_args+=(--install-app "$app")
+    done
+    # Fall back to erpnext alone if apps.txt was empty somehow.
+    [ ${#install_args[@]} -eq 0 ] && install_args=(--install-app erpnext)
     "${AS_FRAPPE[@]}" bench new-site "$SITE" --force --mariadb-user-host-login-scope=% \
       --db-root-username root --db-root-password "$DB_ROOT_PASSWORD" \
-      --admin-password "$ERPNEXT_ADMIN_PASSWORD" --install-app erpnext --set-default 2>&1 | bars
+      --admin-password "$ERPNEXT_ADMIN_PASSWORD" "${install_args[@]}" --set-default 2>&1 | bars
     installed || { echo "railway: site creation failed, retrying on restart"; exit 1; }
   fi
+  install_missing_apps
   "${AS_FRAPPE[@]}" touch "sites/$SITE/.railway-installed"
   fresh=1
 fi
 
 # A new image version needs `bench migrate` before it serves the site: patches,
-# schema changes and fixtures. A database backup is taken first.
+# schema changes and fixtures. A database backup is taken first. Also install any
+# apps added to the image since the last boot (e.g. Dealerbase).
 version=$(jq -r 'to_entries | map("\(.key) \(.value.version)") | join(", ")' sites/apps.json)
 if [ "$(cat "sites/$SITE/.railway-version" 2>/dev/null)" != "$version" ]; then
   if [ -z "${fresh:-}" ]; then
     echo "railway: new version ($version), backing up the database and migrating"
     "${AS_FRAPPE[@]}" bench --site "$SITE" backup 2>&1
+    install_missing_apps
     "${AS_FRAPPE[@]}" bench --site "$SITE" migrate 2>&1 | bars
   fi
   echo "$version" | "${AS_FRAPPE[@]}" tee "sites/$SITE/.railway-version" >/dev/null
+else
+  install_missing_apps
 fi
 
 # The public URL for links in emails and PDFs, which background jobs build without a

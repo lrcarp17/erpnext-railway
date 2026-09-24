@@ -1,7 +1,35 @@
-# Pinned: frappe/erpnext:v16 moves with every weekly release, and a silent rebase can
-# break every deploy of this template at once. Bump deliberately; the entrypoint
-# backs up and migrates the site on the first boot of a new version.
-FROM frappe/erpnext:v16.35.0
+# Custom image: Frappe version-16 + apps from apps.json (ERPNext + Dealerbase),
+# then the Railway one-service production layout (nginx, redis, entrypoint).
+ARG FRAPPE_BRANCH=version-16
+ARG FRAPPE_IMAGE_PREFIX=frappe
+
+FROM ${FRAPPE_IMAGE_PREFIX}/build:${FRAPPE_BRANCH} AS builder
+
+ARG FRAPPE_BRANCH=version-16
+ARG FRAPPE_PATH=https://github.com/frappe/frappe
+
+USER frappe
+COPY --chown=frappe:frappe apps.json /opt/frappe/apps.json
+RUN bench init \
+      --apps_path=/opt/frappe/apps.json \
+      --frappe-branch=${FRAPPE_BRANCH} \
+      --frappe-path=${FRAPPE_PATH} \
+      --no-procfile \
+      --no-backups \
+      --skip-redis-config-generation \
+      --verbose \
+      /home/frappe/frappe-bench \
+  && cd /home/frappe/frappe-bench \
+  && echo "{}" > sites/common_site_config.json \
+  && find apps -mindepth 1 -path "*/.git" | xargs rm -fr
+
+FROM ${FRAPPE_IMAGE_PREFIX}/base:${FRAPPE_BRANCH}
+
+USER frappe
+COPY --from=builder --chown=frappe:frappe /home/frappe/frappe-bench /home/frappe/frappe-bench
+WORKDIR /home/frappe/frappe-bench
+# Move assets to image-layer storage; the Railway volume mounts over sites/.
+RUN cp -r sites/assets assets && rm -rf sites/assets
 
 USER root
 
@@ -25,7 +53,7 @@ RUN cp sites/apps.txt sites/apps.json /home/frappe/
 
 # The image has no bytecode for whoosh, and Python 3.14 compiling it prints invalid
 # escape SyntaxWarnings to stderr on every boot, where Railway shows them as errors.
-RUN env/bin/python -W ignore -m compileall -q env/lib/python3.*/site-packages/whoosh
+RUN env/bin/python -W ignore -m compileall -q env/lib/python3.*/site-packages/whoosh || true
 
 COPY nginx.conf /templates/nginx/railway.conf.template
 COPY --chmod=0755 railway-entrypoint.sh /railway-entrypoint.sh

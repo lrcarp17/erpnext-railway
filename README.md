@@ -41,7 +41,7 @@ The stack is three pieces: ERPNext, a private MariaDB, and a Railway bucket for 
 
 **Custom domain.** Add it in the ERPNext service's Settings → Networking, then set `ERPNEXT_URL` to `https://your.domain` so links in emails and PDFs use it.
 
-**Other Frappe apps.** The image has Frappe and ERPNext only. Frappe's Docker setup installs apps such as HRMS when the image is built, not at runtime, so they need a custom image: build one with frappe_docker's `apps.json` and put it in this repo's `FROM` line.
+**Other Frappe apps.** Edit `apps.json` at the repo root (frappe_docker format: `url` + `branch` per app). The Dockerfile builds a custom image from that list and the entrypoint installs each app on the site. ERPNext and Dealerbase are included by default.
 
 ## Why Deploy ERPNext 16 on Railway?
 
