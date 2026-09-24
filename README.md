@@ -41,7 +41,23 @@ The stack is three pieces: ERPNext, a private MariaDB, and a Railway bucket for 
 
 **Custom domain.** Add it in the ERPNext service's Settings → Networking, then set `ERPNEXT_URL` to `https://your.domain` so links in emails and PDFs use it.
 
-**Other Frappe apps.** Edit `apps.json` at the repo root (frappe_docker format: `url` + `branch` per app). The Dockerfile builds a custom image from that list and the entrypoint installs each app on the site. ERPNext and Dealerbase are included by default.
+**Other Frappe apps.** Edit `apps.json` at the repo root (frappe_docker format: `url` + `branch` per app). The Dockerfile builds a custom image from that list and the entrypoint installs each app on the site.
+
+**Private repos.** For private GitHub repositories, use `${GITHUB_TOKEN}` in the URL and set the token as a build argument in Railway:
+
+1. In `apps.json`, use this format for private repos:
+   ```json
+   {
+     "url": "https://${GITHUB_TOKEN}@github.com/youruser/yourapp",
+     "branch": "main"
+   }
+   ```
+
+2. Create a GitHub Personal Access Token with `repo` scope at [github.com/settings/tokens](https://github.com/settings/tokens)
+
+3. In Railway, go to your ERPNext service → Settings → Build → Add a variable:
+   - Name: `GITHUB_TOKEN`
+   - Value: your token (e.g., `ghp_xxxxxxxxxxxx`)
 
 ## Why Deploy ERPNext 16 on Railway?
 
