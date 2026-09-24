@@ -1,5 +1,7 @@
-# Custom image: Frappe version-16 + apps from apps.json (ERPNext + Dealerbase),
+# Custom image: Frappe version-16 + apps from apps.json,
 # then the Railway one-service production layout (nginx, redis, entrypoint).
+# Add custom apps to apps.json (url + branch); each must be a public repo or
+# authenticated via GITHUB_TOKEN build arg.
 ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_IMAGE_PREFIX=frappe
 
