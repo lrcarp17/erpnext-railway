@@ -453,23 +453,19 @@ def _call_claude(content, filename, document_type=None):
     import anthropic
     import base64
 
-    settings = frappe.get_single("Document Import Settings")
-    api_key = (
-        settings.get_password("anthropic_api_key", raise_exception=False)
-        or frappe.conf.get("anthropic_api_key")
-        or os.environ.get("ANTHROPIC_API_KEY")
+    from dealer_management.dealer_management.doctype.ai_settings.ai_settings import (
+        get_anthropic_credentials,
     )
+
+    api_key, workspace_id, global_model = get_anthropic_credentials()
     if not api_key:
         frappe.throw(
-            _("Add an Anthropic API key in Document Import Settings before importing documents."),
+            _("Add an Anthropic API key in AI Settings before importing documents."),
             title=_("Not Configured"),
         )
 
-    workspace_id = (
-        settings.get("anthropic_workspace_id")
-        or frappe.conf.get("anthropic_workspace_id")
-        or os.environ.get("ANTHROPIC_WORKSPACE_ID")
-    )
+    import_settings = frappe.get_single("Document Import Settings")
+    model = import_settings.model or global_model or DEFAULT_MODEL
 
     extension = (filename.rsplit(".", 1)[-1] if "." in filename else "").lower()
     if extension == "pdf" or content[:5] == b"%PDF-":
@@ -482,7 +478,7 @@ def _call_claude(content, filename, document_type=None):
 
     hint = f" The user says this is a {document_type.replace('_', ' ')}." if document_type in DOCUMENT_TYPES else ""
     request = {
-        "model": settings.model or DEFAULT_MODEL,
+        "model": model,
         "max_tokens": 16000,
         "system": _system_prompt(),
         "messages": [

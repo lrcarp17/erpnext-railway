@@ -4,31 +4,16 @@
  "doctype": "DocType",
  "engine": "InnoDB",
  "field_order": [
-  "anthropic_api_key",
-  "anthropic_workspace_id",
   "model",
   "column_break_1",
   "help_html"
  ],
  "fields": [
   {
-   "description": "API key from console.anthropic.com. Falls back to the anthropic_api_key site config value or the ANTHROPIC_API_KEY environment variable when blank.",
-   "fieldname": "anthropic_api_key",
-   "fieldtype": "Password",
-   "label": "Anthropic API Key"
-  },
-  {
-   "description": "Required for organization-scoped API keys. The workspace ID from console.anthropic.com (Settings → Workspaces). Falls back to the anthropic_workspace_id site config value or the ANTHROPIC_WORKSPACE_ID environment variable when blank.",
-   "fieldname": "anthropic_workspace_id",
-   "fieldtype": "Data",
-   "label": "Anthropic Workspace ID"
-  },
-  {
-   "default": "claude-opus-5",
-   "description": "Claude model used to read uploaded documents.",
+   "description": "Claude model for document import. Leave blank to use the default from AI Settings.",
    "fieldname": "model",
    "fieldtype": "Data",
-   "label": "Model"
+   "label": "Model Override"
   },
   {
    "fieldname": "column_break_1",
@@ -37,7 +22,7 @@
   {
    "fieldname": "help_html",
    "fieldtype": "HTML",
-   "options": "<p>Upload a <b>title</b>, <b>bill of sale</b>, or <b>listing</b> from the Dealer Vehicle list (<i>Import from Document</i>) or from a vehicle (<i>Update from Document</i>). The document is read by Claude, matched to an existing vehicle by VIN, and you review every change before it is saved.</p>"
+   "options": "<p>Upload a <b>title</b>, <b>bill of sale</b>, or <b>listing</b> from the Dealer Vehicle list (<i>Import from Document</i>) or from a vehicle (<i>Update from Document</i>). The document is read by Claude, matched to an existing vehicle by VIN, and you review every change before it is saved.</p><p>Configure your Anthropic API key in <b>AI Settings</b>. Use this page only if you need a different model for document import.</p>"
   }
  ],
  "issingle": 1,

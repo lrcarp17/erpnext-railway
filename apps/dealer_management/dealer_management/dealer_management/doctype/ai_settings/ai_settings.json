@@ -1,0 +1,68 @@
+{
+ "actions": [],
+ "creation": "2026-09-25 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "anthropic_section",
+  "anthropic_api_key",
+  "anthropic_workspace_id",
+  "column_break_anthropic",
+  "anthropic_model",
+  "help_html"
+ ],
+ "fields": [
+  {
+   "fieldname": "anthropic_section",
+   "fieldtype": "Section Break",
+   "label": "Anthropic"
+  },
+  {
+   "description": "API key from console.anthropic.com. Used by all AI features in the app.",
+   "fieldname": "anthropic_api_key",
+   "fieldtype": "Password",
+   "label": "API Key"
+  },
+  {
+   "description": "Required for organization-scoped API keys. Find it in the Anthropic Console under Settings → Workspaces.",
+   "fieldname": "anthropic_workspace_id",
+   "fieldtype": "Data",
+   "label": "Workspace ID"
+  },
+  {
+   "fieldname": "column_break_anthropic",
+   "fieldtype": "Column Break"
+  },
+  {
+   "default": "claude-opus-5",
+   "description": "Default Claude model for AI features.",
+   "fieldname": "anthropic_model",
+   "fieldtype": "Data",
+   "label": "Default Model"
+  },
+  {
+   "fieldname": "help_html",
+   "fieldtype": "HTML",
+   "options": "<p>Configure your Anthropic API credentials here. These settings are used by all AI features in the app, including document import.</p><p>Get an API key from <a href=\"https://console.anthropic.com/settings/keys\" target=\"_blank\">console.anthropic.com</a>. If your key is organization-scoped (not tied to a specific workspace), you'll also need to enter the Workspace ID.</p>"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-25 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dealer Management",
+ "name": "AI Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}
