@@ -1,0 +1,50 @@
+[
+  {
+    "doctype": "Dashboard Chart",
+    "name": "Inventory by Status",
+    "chart_name": "Inventory by Status",
+    "chart_type": "Group By",
+    "document_type": "Dealer Vehicle",
+    "group_by_type": "Count",
+    "group_by_based_on": "status",
+    "filters_json": "[[\"Dealer Vehicle\", \"status\", \"not in\", [\"Sold\", \"Wholesale\"]]]",
+    "type": "Donut",
+    "is_public": 1,
+    "use_report_chart": 0,
+    "timeseries": 0,
+    "number_of_groups": 10
+  },
+  {
+    "doctype": "Dashboard Chart",
+    "name": "Monthly Sales",
+    "chart_name": "Monthly Sales",
+    "chart_type": "Count",
+    "document_type": "Vehicle Sale",
+    "based_on": "sale_date",
+    "filters_json": "[]",
+    "type": "Bar",
+    "is_public": 1,
+    "use_report_chart": 0,
+    "timeseries": 1,
+    "time_interval": "Monthly",
+    "timespan": "Last Year",
+    "color": "#7C3AED"
+  },
+  {
+    "doctype": "Dashboard Chart",
+    "name": "Monthly Revenue",
+    "chart_name": "Monthly Revenue",
+    "chart_type": "Sum",
+    "document_type": "Vehicle Sale",
+    "based_on": "sale_date",
+    "value_based_on": "sale_price",
+    "filters_json": "[]",
+    "type": "Line",
+    "is_public": 1,
+    "use_report_chart": 0,
+    "timeseries": 1,
+    "time_interval": "Monthly",
+    "timespan": "Last Year",
+    "color": "#10B981"
+  }
+]

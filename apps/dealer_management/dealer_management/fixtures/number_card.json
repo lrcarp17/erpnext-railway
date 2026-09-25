@@ -1,0 +1,71 @@
+[
+  {
+    "doctype": "Number Card",
+    "name": "Total Inventory",
+    "label": "Total Inventory",
+    "document_type": "Dealer Vehicle",
+    "filters_json": "[[\"Dealer Vehicle\", \"status\", \"not in\", [\"Sold\", \"Wholesale\"]]]",
+    "function": "Count",
+    "is_public": 1,
+    "show_percentage_stats": 0,
+    "color": "#2490EF"
+  },
+  {
+    "doctype": "Number Card",
+    "name": "Awaiting Pickup",
+    "label": "Awaiting Pickup",
+    "document_type": "Dealer Vehicle",
+    "filters_json": "[[\"Dealer Vehicle\", \"status\", \"=\", \"Awaiting Pickup\"]]",
+    "function": "Count",
+    "is_public": 1,
+    "show_percentage_stats": 0,
+    "color": "#FF6B6B"
+  },
+  {
+    "doctype": "Number Card",
+    "name": "Awaiting Title",
+    "label": "Awaiting Title",
+    "document_type": "Dealer Vehicle",
+    "filters_json": "[[\"Dealer Vehicle\", \"status\", \"=\", \"Awaiting Title\"]]",
+    "function": "Count",
+    "is_public": 1,
+    "show_percentage_stats": 0,
+    "color": "#FFAB40"
+  },
+  {
+    "doctype": "Number Card",
+    "name": "Frontline Ready",
+    "label": "Frontline Ready",
+    "document_type": "Dealer Vehicle",
+    "filters_json": "[[\"Dealer Vehicle\", \"status\", \"in\", [\"Frontline\", \"Available\"]]]",
+    "function": "Count",
+    "is_public": 1,
+    "show_percentage_stats": 0,
+    "color": "#36D399"
+  },
+  {
+    "doctype": "Number Card",
+    "name": "Vehicles Sold This Month",
+    "label": "Sold This Month",
+    "document_type": "Vehicle Sale",
+    "filters_json": "[[\"Vehicle Sale\", \"sale_date\", \"Timespan\", \"this month\"]]",
+    "function": "Count",
+    "is_public": 1,
+    "show_percentage_stats": 1,
+    "stats_time_interval": "Monthly",
+    "color": "#7C3AED"
+  },
+  {
+    "doctype": "Number Card",
+    "name": "Revenue This Month",
+    "label": "Revenue This Month",
+    "document_type": "Vehicle Sale",
+    "filters_json": "[[\"Vehicle Sale\", \"sale_date\", \"Timespan\", \"this month\"]]",
+    "function": "Sum",
+    "aggregate_function_based_on": "sale_price",
+    "is_public": 1,
+    "show_percentage_stats": 1,
+    "stats_time_interval": "Monthly",
+    "color": "#10B981"
+  }
+]
