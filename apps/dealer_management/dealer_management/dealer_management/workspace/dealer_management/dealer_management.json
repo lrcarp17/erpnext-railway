@@ -272,6 +272,13 @@
   "sequence_id": 1,
   "shortcuts": [
     {
+      "color": "Yellow",
+      "icon": "chat",
+      "label": "Inventory Assistant",
+      "link_to": "inventory-assistant",
+      "type": "Page"
+    },
+    {
       "color": "Blue",
       "doc_view": "New",
       "label": "Add Vehicle",
