@@ -1,11 +1,14 @@
 """Dealerbase branding and landing page.
 
 Applied after install, after every migrate (each deploy of a changed image runs
-one) and when the setup wizard finishes, which resets the home page. Settings an
+one) and when the setup wizard finishes, which resets the home page. The same
+points apply the workspace policy in workspaces.py. Settings an
 administrator has already customised are left alone.
 """
 
 import frappe
+
+from dealer_management.workspaces import apply_workspace_policy
 
 BRAND_NAME = "Dealerbase"
 LOGO_URL = "/assets/dealer_management/images/dealerbase-logo.svg"
@@ -23,14 +26,17 @@ def before_install():
 
 def after_install():
     apply_branding()
+    apply_workspace_policy()
 
 
 def after_migrate():
     apply_branding()
+    apply_workspace_policy()
 
 
 def after_setup_wizard(args=None):
     apply_branding()
+    apply_workspace_policy()
 
 
 def apply_branding():
