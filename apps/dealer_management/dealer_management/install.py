@@ -10,6 +10,7 @@ import frappe
 
 from dealer_management.workspaces import apply_workspace_policy
 
+APP_NAME = "dealer_management"
 BRAND_NAME = "Dealerbase"
 LOGO_URL = "/assets/dealer_management/images/dealerbase-logo.svg"
 FAVICON_URL = "/assets/dealer_management/images/favicon.svg"
@@ -43,6 +44,9 @@ def apply_branding():
     try:
         set_home_page()
         set_single_if_stock("System Settings", "app_name", BRAND_NAME, STOCK_APP_NAMES)
+        # With ERPNext installed too, signing in lands on the desktop of app icons;
+        # make Dealerbase the default app so it opens the Dealerbase home instead.
+        set_single_if_stock("System Settings", "default_app", APP_NAME, {None, ""})
         set_single_if_stock("Website Settings", "app_name", BRAND_NAME, STOCK_APP_NAMES)
         set_single_if_stock("Navbar Settings", "app_logo", LOGO_URL, {None, ""})
         set_single_if_stock("Website Settings", "app_logo", LOGO_URL, {None, ""})

@@ -48,3 +48,23 @@ dealer_management.compact_currency = function (value) {
 dealer_management.full_currency = function (value) {
 	return format_currency(flt(value), dealer_management.currency_code(), 0);
 };
+
+// The sidebar header names the workspace sidebar ("Dealer Management") with the
+// app title underneath. Show the Dealerbase brand, and the dealership's company
+// name when there is one, so the app never reads like part of ERPNext.
+(function () {
+	const Header = frappe.ui.SidebarHeader;
+	if (!Header || Header.prototype.dealerbase_branded) return;
+	const make = Header.prototype.make;
+	Header.prototype.dealerbase_branded = true;
+	Header.prototype.make = function () {
+		make.apply(this, arguments);
+		if (this.sidebar.sidebar_title !== "Dealer Management") return;
+		const company = frappe.defaults.get_default("company");
+		this.$header_title.text(__("Dealerbase"));
+		this.wrapper
+			.find(".header-subtitle")
+			.text(company || "")
+			.toggle(!!company);
+	};
+})();
