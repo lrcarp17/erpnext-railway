@@ -320,6 +320,7 @@ def build_auction(extracted):
 
 
 def build_transaction(extracted):
+    is_auction = bool(extracted.get("auction_name"))
     return {
         "record_as": extracted.get("transaction_direction") or "None",
         "date": extracted.get("document_date"),
@@ -330,6 +331,11 @@ def build_transaction(extracted):
         "buyer_email": extracted.get("buyer_email"),
         "seller_name": extracted.get("seller_name"),
         "seller_contact": extracted.get("seller_address"),
+        "is_auction": is_auction,
+        "auction_name": extracted.get("auction_name"),
+        "auction_location": extracted.get("auction_location"),
+        "lane_run": extracted.get("lane_run"),
+        "auction_seller": extracted.get("auction_seller"),
     }
 
 
@@ -431,7 +437,7 @@ Rules:
   drivetrain: {", ".join(o for o in options.get("drivetrain", []) if o)}
   fuel_type: {", ".join(o for o in options.get("fuel_type", []) if o)}
   title_status: {", ".join(o for o in options.get("title_status", []) if o)}
-- For a bill of sale, set transaction_direction to "Sale" if the dealer ({dealer}) is the seller, "Purchase" if the dealer is the buyer, or an empty string if you cannot tell.
+- For a bill of sale, set transaction_direction to "Sale" if the dealer ({dealer}) is the seller, "Purchase" if the dealer is the buyer, or an empty string if you cannot tell. If it's from an auction (Manheim, ADESA, ACV, America's Auto Auction, etc.), also fill auction_name, auction_location, lane_run, and auction_seller.
 - For a listing, put the listed options/equipment in features (comma-separated) and the seller's description text in description.
 - For an auction_listing:
   - price is the asking or buy-now price only if one is shown; do not put MMR or valuation figures in price.
@@ -761,17 +767,27 @@ def _create_transaction(vehicle, record_as, data, file_url):
         return sale
 
     acquisition = frappe.new_doc("Vehicle Acquisition")
+    is_auction = data.get("is_auction")
     acquisition.update(
         {
             "vehicle": vehicle.name,
-            "source_type": "Private Purchase",
+            "source_type": "Auction" if is_auction else "Private Purchase",
             "purchase_date": data.get("date") or today(),
-            "seller_name": data.get("seller_name"),
+            "seller_name": data.get("auction_seller") if is_auction else data.get("seller_name"),
             "seller_contact": data.get("seller_contact"),
             "bid_amount": flt(data.get("price")),
             "purchase_receipt": file_url,
         }
     )
+    if is_auction:
+        acquisition.update(
+            {
+                "auction_name": data.get("auction_name"),
+                "auction_location": data.get("auction_location"),
+                "auction_date": data.get("date"),
+                "lane_number": data.get("lane_run"),
+            }
+        )
     acquisition.insert()
     if not vehicle.acquisition:
         vehicle.db_set("acquisition", acquisition.name)
