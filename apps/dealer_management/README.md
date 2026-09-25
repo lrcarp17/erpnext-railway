@@ -108,14 +108,13 @@ Pre-configured with major auto finance companies:
 3. **Configure Expense Categories**: Add or modify expense categories to match your accounting needs
 4. **Set Up Listing Platforms**: Configure the platforms where you list vehicles
 
-### Workspace
+### Sidebar
 
-Access the Dealer Management workspace from the sidebar for quick access to:
-- Add/View Vehicles
-- Add/View Leads
-- Acquisition management
-- Expense tracking
-- Setup and configuration
+The left-hand menu on every Dealerbase page (defined in `dealer_management/workspace_sidebar/dealer_management.json`) is the quick way around the app:
+- Home, Vehicles, Acquisitions, Leads, Sales, Expenses and the Inventory Assistant
+- Vehicle Records: inspections and market values
+- Setup: acquisition sources, listing platforms, lienholders and expense categories
+- Administration: AI settings, document import settings, AI usage, users and data import (shown only to users who can open them)
 
 ## Usage
 
