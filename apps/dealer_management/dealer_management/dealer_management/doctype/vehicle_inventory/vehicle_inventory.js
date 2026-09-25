@@ -552,7 +552,7 @@ const vehicle_view = {
     const listings = doc.listings || [];
     const body = listings.length
       ? `<div class="vi-table-wrap"><table class="vi-table">
-          <thead><tr><th>${__("Platform")}</th><th>${__("Status")}</th><th class="vi-num">${__("Price")}</th><th class="vi-num">${__("Views")}</th><th class="vi-num">${__("Leads")}</th></tr></thead>
+          <thead><tr><th>${__("Platform")}</th><th>${__("Status")}</th><th class="vi-num">${__("Price")}</th><th class="vi-num">${__("Views")}</th><th class="vi-num">${__("Inquiries")}</th></tr></thead>
           <tbody>
             ${listings
               .map((l) => `<tr>
