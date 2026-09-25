@@ -7,6 +7,8 @@
     "editable_grid": 1,
     "engine": "InnoDB",
     "field_order": [
+        "warnings_section",
+        "warnings_html",
         "basic_info_section",
         "vehicle_id",
         "vin",
@@ -73,8 +75,10 @@
         "market_info",
         "sale",
         "photos_section",
+        "upload_photos_html",
         "photos",
         "expenses_section",
+        "total_expenses",
         "expenses",
         "listings_section",
         "listings",
@@ -85,6 +89,17 @@
         "description"
     ],
     "fields": [
+        {
+            "fieldname": "warnings_section",
+            "fieldtype": "Section Break",
+            "label": "Alerts",
+            "hide_border": 1
+        },
+        {
+            "fieldname": "warnings_html",
+            "fieldtype": "HTML",
+            "label": "Warnings"
+        },
         {
             "fieldname": "basic_info_section",
             "fieldtype": "Section Break",
@@ -462,6 +477,11 @@
             "label": "Photos"
         },
         {
+            "fieldname": "upload_photos_html",
+            "fieldtype": "HTML",
+            "label": "Upload Photos"
+        },
+        {
             "fieldname": "photos",
             "fieldtype": "Table",
             "label": "Photos",
@@ -472,6 +492,13 @@
             "fieldname": "expenses_section",
             "fieldtype": "Section Break",
             "label": "Expenses"
+        },
+        {
+            "fieldname": "total_expenses",
+            "fieldtype": "Currency",
+            "label": "Total Expenses",
+            "read_only": 1,
+            "bold": 1
         },
         {
             "fieldname": "expenses",

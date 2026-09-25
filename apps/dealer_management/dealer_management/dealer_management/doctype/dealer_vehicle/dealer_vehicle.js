@@ -1,166 +1,182 @@
 frappe.ui.form.on("Dealer Vehicle", {
-    refresh: function (frm) {
-        if (!frm.is_new()) {
-            frm.add_custom_button(__("Decode VIN"), function () {
-                frm.trigger("decode_vin");
-            });
-            frm.add_custom_button(__("Update from Document"), function () {
-                dealer_management.document_import.open(frm);
-            });
-        }
+  refresh: function (frm) {
+    render_warnings(frm);
+    render_upload_button(frm);
+    setup_expense_total_refresh(frm);
+  },
 
-        frm.set_query("lienholder", function () {
-            return {
-                filters: {
-                    enabled: 1,
-                },
-            };
-        });
+  onload: function (frm) {
+    render_warnings(frm);
+  },
 
-        frm.trigger("set_field_indicators");
-    },
+  title_received: function (frm) {
+    render_warnings(frm);
+  },
 
-    vin: function (frm) {
-        if (frm.doc.vin) {
-            frm.set_value("vin", frm.doc.vin.toUpperCase().trim());
-        }
-    },
+  acquisition: function (frm) {
+    render_warnings(frm);
+  },
 
-    decode_vin: function (frm) {
-        if (!frm.doc.vin) {
-            frappe.msgprint(__("Please enter a VIN first"));
-            return;
-        }
+  asking_price: function (frm) {
+    render_warnings(frm);
+  },
 
-        frappe.call({
-            method: "dealer_management.dealer_management.doctype.dealer_vehicle.dealer_vehicle.decode_vin",
-            args: {
-                vin: frm.doc.vin,
-            },
-            callback: function (r) {
-                if (r.message) {
-                    frappe.msgprint(r.message.message);
-                }
-            },
-        });
-    },
+  has_lien: function (frm) {
+    render_warnings(frm);
+  },
 
-    lot_date: function (frm) {
-        frm.trigger("calculate_days_on_lot");
-    },
+  lien_release_received: function (frm) {
+    render_warnings(frm);
+  },
 
-    calculate_days_on_lot: function (frm) {
-        if (frm.doc.lot_date) {
-            let lot_date = frappe.datetime.str_to_obj(frm.doc.lot_date);
-            let today = frappe.datetime.str_to_obj(frappe.datetime.get_today());
-            let days = frappe.datetime.get_diff(today, lot_date);
-            frm.set_value("days_on_lot", Math.max(0, days));
-        }
-    },
-
-    asking_price: function (frm) {
-        frm.trigger("calculate_potential_profit");
-    },
-
-    calculate_potential_profit: function (frm) {
-        let profit =
-            flt(frm.doc.asking_price) - flt(frm.doc.total_investment);
-        frm.set_value("potential_profit", profit);
-    },
-
-    has_lien: function (frm) {
-        if (!frm.doc.has_lien) {
-            frm.set_value("lienholder", null);
-            frm.set_value("lienholder_name", null);
-            frm.set_value("lienholder_account", null);
-            frm.set_value("lien_payoff_amount", null);
-            frm.set_value("lien_payoff_good_through", null);
-            frm.set_value("lien_paid_date", null);
-            frm.set_value("lien_release_received", 0);
-            frm.set_value("lien_release_document", null);
-        }
-    },
-
-    title_received: function (frm) {
-        if (frm.doc.title_received && !frm.doc.title_received_date) {
-            frm.set_value(
-                "title_received_date",
-                frappe.datetime.get_today()
-            );
-        }
-    },
-
-    set_field_indicators: function (frm) {
-        if (frm.doc.days_on_lot > 60) {
-            frm.set_df_property(
-                "days_on_lot",
-                "description",
-                '<span style="color: red;">Vehicle has been on lot for over 60 days</span>'
-            );
-        } else if (frm.doc.days_on_lot > 30) {
-            frm.set_df_property(
-                "days_on_lot",
-                "description",
-                '<span style="color: orange;">Vehicle has been on lot for over 30 days</span>'
-            );
-        }
-
-        if (frm.doc.potential_profit < 0) {
-            frm.set_df_property(
-                "potential_profit",
-                "description",
-                '<span style="color: red;">Warning: Negative profit margin</span>'
-            );
-        }
-    },
+  status: function (frm) {
+    render_warnings(frm);
+  },
 });
 
 frappe.ui.form.on("Vehicle Expense", {
-    amount: function (frm, cdt, cdn) {
-        frm.trigger("calculate_total_expenses");
-    },
-
-    expenses_remove: function (frm) {
-        frm.trigger("calculate_total_expenses");
-    },
-
-    calculate_total_expenses: function (frm) {
-        let total = 0;
-        (frm.doc.expenses || []).forEach(function (expense) {
-            total += flt(expense.amount);
-        });
-        frm.set_value("total_investment", total);
-        frm.trigger("calculate_potential_profit");
-    },
+  amount: function (frm) {
+    calculate_expense_total(frm);
+  },
+  expenses_remove: function (frm) {
+    calculate_expense_total(frm);
+  },
 });
 
 frappe.ui.form.on("Vehicle Photo", {
-    is_primary: function (frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
-        if (row.is_primary) {
-            (frm.doc.photos || []).forEach(function (photo) {
-                if (photo.name !== row.name) {
-                    frappe.model.set_value(
-                        photo.doctype,
-                        photo.name,
-                        "is_primary",
-                        0
-                    );
-                }
-            });
-        }
-    },
+  photos_add: function (frm) {
+    render_warnings(frm);
+  },
+  photos_remove: function (frm) {
+    render_warnings(frm);
+  },
 });
 
-frappe.ui.form.on("Vehicle Note", {
-    notes_add: function (frm, cdt, cdn) {
-        let row = locals[cdt][cdn];
-        frappe.model.set_value(cdt, cdn, "added_by", frappe.session.user);
-        frappe.model.set_value(
-            cdt,
-            cdn,
-            "note_date",
-            frappe.datetime.now_datetime()
-        );
+function render_warnings(frm) {
+  if (frm.is_new()) {
+    frm.fields_dict.warnings_html.$wrapper.html(`
+      <div class="vehicle-warnings">
+        <div class="alert alert-info">
+          <span class="indicator-pill blue">New</span>
+          Save the vehicle to see alerts
+        </div>
+      </div>
+    `);
+    return;
+  }
+
+  frappe.call({
+    method:
+      "dealer_management.dealer_management.doctype.dealer_vehicle.dealer_vehicle.get_vehicle_warnings",
+    args: { vehicle_name: frm.doc.name },
+    callback: function (r) {
+      if (r.message) {
+        display_warnings(frm, r.message);
+      }
     },
-});
+  });
+}
+
+function display_warnings(frm, warnings) {
+  let html = '<div class="vehicle-warnings">';
+
+  if (warnings.length === 0) {
+    html += `
+      <div class="alert alert-success" style="margin-bottom: 0;">
+        <span class="indicator-pill green">Ready</span>
+        All checks passed
+      </div>
+    `;
+  } else {
+    warnings.forEach((w) => {
+      const alertClass =
+        w.type === "danger"
+          ? "alert-danger"
+          : w.type === "warning"
+          ? "alert-warning"
+          : "alert-info";
+      const pillClass =
+        w.type === "danger" ? "red" : w.type === "warning" ? "orange" : "blue";
+
+      html += `
+        <div class="alert ${alertClass}" style="margin-bottom: 8px; padding: 8px 12px;">
+          <span class="indicator-pill ${pillClass}" style="margin-right: 8px;"></span>
+          ${w.message}
+        </div>
+      `;
+    });
+  }
+
+  html += "</div>";
+  html += `
+    <style>
+      .vehicle-warnings {
+        margin-bottom: 15px;
+      }
+      .vehicle-warnings .alert {
+        display: flex;
+        align-items: center;
+        font-size: 13px;
+      }
+    </style>
+  `;
+
+  frm.fields_dict.warnings_html.$wrapper.html(html);
+}
+
+function render_upload_button(frm) {
+  if (frm.is_new()) {
+    frm.fields_dict.upload_photos_html.$wrapper.html("");
+    return;
+  }
+
+  frm.fields_dict.upload_photos_html.$wrapper.html(`
+    <button class="btn btn-default btn-sm btn-upload-photos" style="margin-bottom: 10px;">
+      <svg class="icon icon-sm"><use href="#icon-upload"></use></svg>
+      Upload Multiple Photos
+    </button>
+  `);
+
+  frm.fields_dict.upload_photos_html.$wrapper
+    .find(".btn-upload-photos")
+    .on("click", function () {
+      open_photo_upload_dialog(frm);
+    });
+}
+
+function open_photo_upload_dialog(frm) {
+  new frappe.ui.FileUploader({
+    doctype: frm.doctype,
+    docname: frm.docname,
+    folder: "Home/Attachments",
+    allow_multiple: true,
+    restrictions: {
+      allowed_file_types: ["image/*"],
+    },
+    on_success: function (file_doc) {
+      if (file_doc && file_doc.file_url) {
+        let row = frm.add_child("photos", {
+          photo: file_doc.file_url,
+          photo_type: "Exterior",
+        });
+        frm.refresh_field("photos");
+        frm.dirty();
+      }
+    },
+    as_dataurl: false,
+    make_attachments_public: true,
+    upload_notes: "Upload vehicle photos (JPG, PNG). Photos will be added to the list below.",
+  });
+}
+
+function setup_expense_total_refresh(frm) {
+  calculate_expense_total(frm);
+}
+
+function calculate_expense_total(frm) {
+  let total = 0;
+  (frm.doc.expenses || []).forEach((row) => {
+    total += flt(row.amount);
+  });
+  frm.set_value("total_expenses", total);
+}
