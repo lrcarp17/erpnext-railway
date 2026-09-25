@@ -27,7 +27,10 @@ app_license = "MIT"
 # include js, css files in header of desk.html
 # app_include_css = "/assets/dealer_management/css/dealer_management.css"
 # app_include_js = "/assets/dealer_management/js/dealer_management.js"
-app_include_js = ["/assets/dealer_management/js/document_import.js"]
+app_include_js = [
+    "/assets/dealer_management/js/document_import.js",
+    "/assets/dealer_management/js/workspace_dashboard.js",
+]
 
 # include js, css files in header of web template
 # web_include_css = "/assets/dealer_management/css/dealer_management.css"
