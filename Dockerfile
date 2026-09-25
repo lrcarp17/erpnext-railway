@@ -13,7 +13,12 @@ ARG GITHUB_TOKEN=""
 USER frappe
 COPY --chown=frappe:frappe apps.json /opt/frappe/apps.json.template
 RUN envsubst < /opt/frappe/apps.json.template > /opt/frappe/apps.json && rm /opt/frappe/apps.json.template
-RUN bench init \
+# apps.json names branches, not commits, so a new push to an app's branch leaves this
+# step's cache key unchanged and Docker would reuse the old clone. Railway sets
+# RAILWAY_DEPLOYMENT_ID on every build; using it here re-clones the apps on each deploy.
+ARG RAILWAY_DEPLOYMENT_ID=""
+RUN echo "railway: fetching apps for deployment ${RAILWAY_DEPLOYMENT_ID:-local}" \
+  && bench init \
       --apps_path=/opt/frappe/apps.json \
       --frappe-branch=${FRAPPE_BRANCH} \
       --frappe-path=${FRAPPE_PATH} \
