@@ -14,10 +14,11 @@ USER frappe
 COPY --chown=frappe:frappe apps.json /opt/frappe/apps.json.template
 RUN envsubst < /opt/frappe/apps.json.template > /opt/frappe/apps.json && rm /opt/frappe/apps.json.template
 # apps.json names branches, not commits, so a new push to an app's branch leaves this
-# step's cache key unchanged and Docker would reuse the old clone. Railway sets
-# RAILWAY_DEPLOYMENT_ID on every build; using it here re-clones the apps on each deploy.
-ARG RAILWAY_DEPLOYMENT_ID=""
-RUN echo "railway: fetching apps for deployment ${RAILWAY_DEPLOYMENT_ID:-local}" \
+# step's cache key unchanged and Docker would reuse the old clone. Railway passes
+# service variables to the build, so changing APPS_REVISION (any new value) on the
+# ERPNext service forces a fresh clone of every app.
+ARG APPS_REVISION=""
+RUN echo "railway: fetching apps (APPS_REVISION=${APPS_REVISION:-unset})" \
   && bench init \
       --apps_path=/opt/frappe/apps.json \
       --frappe-branch=${FRAPPE_BRANCH} \
