@@ -5,6 +5,7 @@
  "engine": "InnoDB",
  "field_order": [
   "anthropic_api_key",
+  "anthropic_workspace_id",
   "model",
   "column_break_1",
   "help_html"
@@ -15,6 +16,12 @@
    "fieldname": "anthropic_api_key",
    "fieldtype": "Password",
    "label": "Anthropic API Key"
+  },
+  {
+   "description": "Required for organization-scoped API keys. The workspace ID from console.anthropic.com (Settings → Workspaces). Falls back to the anthropic_workspace_id site config value or the ANTHROPIC_WORKSPACE_ID environment variable when blank.",
+   "fieldname": "anthropic_workspace_id",
+   "fieldtype": "Data",
+   "label": "Anthropic Workspace ID"
   },
   {
    "default": "claude-opus-5",

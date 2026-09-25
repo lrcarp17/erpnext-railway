@@ -163,7 +163,7 @@ What each document fills in:
 
 In the review dialog, each field shows the current value next to the value read from the document; untick anything you don't want applied or edit the value first. The uploaded file is attached to the vehicle.
 
-**Setup:** open **Document Import Settings** and enter an Anthropic API key (or set `anthropic_api_key` in `site_config.json`, or the `ANTHROPIC_API_KEY` environment variable). The model defaults to `claude-opus-5`. The server needs outbound access to `api.anthropic.com`.
+**Setup:** open **Document Import Settings** and enter an Anthropic API key (or set `anthropic_api_key` in `site_config.json`, or the `ANTHROPIC_API_KEY` environment variable). If your API key is organization-scoped rather than workspace-scoped, also add your **Anthropic Workspace ID** (or set `anthropic_workspace_id` in `site_config.json`, or the `ANTHROPIC_WORKSPACE_ID` environment variable). The workspace ID is found in the Anthropic Console under Settings → Workspaces. The model defaults to `claude-opus-5`. The server needs outbound access to `api.anthropic.com`.
 
 ## Reports
 

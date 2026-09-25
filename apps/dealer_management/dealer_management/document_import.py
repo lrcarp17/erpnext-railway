@@ -465,6 +465,12 @@ def _call_claude(content, filename, document_type=None):
             title=_("Not Configured"),
         )
 
+    workspace_id = (
+        settings.get("anthropic_workspace_id")
+        or frappe.conf.get("anthropic_workspace_id")
+        or os.environ.get("ANTHROPIC_WORKSPACE_ID")
+    )
+
     extension = (filename.rsplit(".", 1)[-1] if "." in filename else "").lower()
     if extension == "pdf" or content[:5] == b"%PDF-":
         data = base64.standard_b64encode(content).decode("utf-8")
@@ -487,7 +493,8 @@ def _call_claude(content, filename, document_type=None):
         ],
         "output_config": {"format": {"type": "json_schema", "schema": _extraction_schema()}},
     }
-    client = anthropic.Anthropic(api_key=api_key)
+    default_headers = {"anthropic-workspace-id": workspace_id} if workspace_id else None
+    client = anthropic.Anthropic(api_key=api_key, default_headers=default_headers)
     try:
         try:
             response = client.beta.messages.create(
