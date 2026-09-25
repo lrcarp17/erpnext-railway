@@ -21,14 +21,6 @@ MAX_FILE_BYTES = 30 * 1024 * 1024
 
 DOCUMENT_TYPES = ("title", "bill_of_sale", "listing", "auction_listing", "other")
 
-IMAGE_TYPES = {
-    "jpg": "image/jpeg",
-    "jpeg": "image/jpeg",
-    "png": "image/png",
-    "gif": "image/gif",
-    "webp": "image/webp",
-}
-
 # Dealer Vehicle fields that can be filled from any document, in display order.
 VEHICLE_FIELDS = (
     "vin",
@@ -473,39 +465,54 @@ def _call_claude(content, filename, document_type=None):
             title=_("Not Configured"),
         )
 
-    data = base64.standard_b64encode(content).decode("utf-8")
     extension = (filename.rsplit(".", 1)[-1] if "." in filename else "").lower()
-    if extension == "pdf":
+    if extension == "pdf" or content[:5] == b"%PDF-":
+        data = base64.standard_b64encode(content).decode("utf-8")
         block = {"type": "document", "source": {"type": "base64", "media_type": "application/pdf", "data": data}}
-    elif extension in IMAGE_TYPES:
-        block = {"type": "image", "source": {"type": "base64", "media_type": IMAGE_TYPES[extension], "data": data}}
     else:
-        frappe.throw(_("Upload a PDF or an image (JPG, PNG, GIF or WEBP). {0} is not supported.").format(filename))
+        image, media_type = _prepare_image(content, filename)
+        data = base64.standard_b64encode(image).decode("utf-8")
+        block = {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": data}}
 
     hint = f" The user says this is a {document_type.replace('_', ' ')}." if document_type in DOCUMENT_TYPES else ""
+    request = {
+        "model": settings.model or DEFAULT_MODEL,
+        "max_tokens": 16000,
+        "system": _system_prompt(),
+        "messages": [
+            {
+                "role": "user",
+                "content": [block, {"type": "text", "text": f"Extract the vehicle data from this document.{hint}"}],
+            }
+        ],
+        "output_config": {"format": {"type": "json_schema", "schema": _extraction_schema()}},
+    }
     client = anthropic.Anthropic(api_key=api_key)
     try:
-        response = client.beta.messages.create(
-            model=settings.model or DEFAULT_MODEL,
-            max_tokens=16000,
-            betas=["server-side-fallback-2026-07-01"],
-            fallbacks="default",
-            system=_system_prompt(),
-            messages=[
-                {
-                    "role": "user",
-                    "content": [block, {"type": "text", "text": f"Extract the vehicle data from this document.{hint}"}],
-                }
-            ],
-            output_config={"format": {"type": "json_schema", "schema": _extraction_schema()}},
-        )
+        try:
+            response = client.beta.messages.create(
+                betas=["server-side-fallback-2026-07-01"], fallbacks="default", **request
+            )
+        except anthropic.BadRequestError as e:
+            # Not every account or model accepts server-side fallbacks; retry once without.
+            frappe.log_error(title="Document import: retrying without fallbacks", message=_api_error_message(e))
+            response = client.messages.create(**request)
     except anthropic.AuthenticationError:
         frappe.throw(_("The Anthropic API key was rejected. Check Document Import Settings."))
+    except anthropic.PermissionDeniedError as e:
+        frappe.throw(_("The Anthropic API key is not allowed to do this: {0}").format(_api_error_message(e)))
+    except anthropic.NotFoundError:
+        frappe.throw(
+            _("The model {0} is not available to this API key. Change it in Document Import Settings.").format(
+                request["model"]
+            )
+        )
     except anthropic.RateLimitError:
         frappe.throw(_("The document reader is busy. Please try again in a minute."))
     except anthropic.APIStatusError as e:
-        frappe.log_error(title="Document import failed", message=f"{e.status_code}: {e.message}")
-        frappe.throw(_("The document could not be read ({0}). Please try again.").format(e.status_code))
+        message = _api_error_message(e)
+        frappe.log_error(title="Document import failed", message=f"{e.status_code}: {message}")
+        frappe.throw(_("The document could not be read ({0}): {1}").format(e.status_code, message))
     except anthropic.APIConnectionError:
         frappe.throw(_("Could not reach the document reader. Check the server's internet access."))
 
@@ -518,6 +525,48 @@ def _call_claude(content, filename, document_type=None):
     if not text:
         frappe.throw(_("The document reader returned no data."))
     return _clean_extraction(json.loads(text))
+
+
+def _api_error_message(error):
+    """The API's own explanation, e.g. "Your credit balance is too low..."."""
+    body = error.body if isinstance(error.body, dict) else {}
+    return (body.get("error") or {}).get("message") or error.message
+
+
+# Claude accepts images up to 5 MB and 8000 px per side; larger ones are downscaled.
+MAX_IMAGE_BYTES = 3_700_000  # base64 adds a third, keeping the encoded image under 5 MB
+MAX_IMAGE_SIDE = 2400
+
+
+def _prepare_image(content, filename):
+    """Return (bytes, media_type) for an uploaded image, re-encoding it when needed."""
+    from io import BytesIO
+
+    from PIL import Image, ImageOps
+
+    try:
+        image = Image.open(BytesIO(content))
+        image.load()
+    except Exception:
+        frappe.throw(
+            _("{0} could not be opened as an image. Upload a PDF, JPG, PNG, GIF or WEBP file.").format(filename)
+        )
+
+    media_type = {"JPEG": "image/jpeg", "PNG": "image/png", "GIF": "image/gif", "WEBP": "image/webp"}.get(
+        image.format
+    )
+    if media_type and len(content) <= MAX_IMAGE_BYTES and max(image.size) <= MAX_IMAGE_SIDE:
+        return content, media_type
+
+    image = ImageOps.exif_transpose(image).convert("RGB")
+    image.thumbnail((MAX_IMAGE_SIDE, MAX_IMAGE_SIDE))
+    quality = 85
+    while True:
+        out = BytesIO()
+        image.save(out, format="JPEG", quality=quality)
+        if out.tell() <= MAX_IMAGE_BYTES or quality <= 40:
+            return out.getvalue(), "image/jpeg"
+        quality -= 15
 
 
 def _clean_extraction(data):
