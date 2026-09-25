@@ -31,6 +31,6 @@ class VehicleCondition(Document):
     def on_update(self):
         """Update linked vehicle's condition reference if not already set."""
         if self.vehicle:
-            vehicle = frappe.get_doc("Dealer Vehicle", self.vehicle)
+            vehicle = frappe.get_doc("Vehicle Inventory", self.vehicle)
             if not vehicle.condition or vehicle.condition != self.name:
                 vehicle.db_set("condition", self.name, update_modified=False)

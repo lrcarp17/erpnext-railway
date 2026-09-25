@@ -264,7 +264,6 @@ fixtures = [
 # Define custom naming series for DocTypes
 
 autoname_series = {
-    "Dealer Vehicle": "VH-.YYYY.-.#####",
-    "Dealer Lead": "LD-.YYYY.-.#####",
+    "Vehicle Inventory": "VH-.YYYY.-.#####",
     "Company Expense": "EXP-.YYYY.-.MM.-.#####"
 }

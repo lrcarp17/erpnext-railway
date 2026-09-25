@@ -7,7 +7,7 @@ frappe.pages["dealer-home"].on_page_load = function (wrapper) {
 		single_column: true,
 	});
 
-	page.set_primary_action(__("Add Vehicle"), () => frappe.new_doc("Dealer Vehicle"), "add");
+	page.set_primary_action(__("Add Vehicle"), () => frappe.new_doc("Vehicle Inventory"), "add");
 	page.set_secondary_action(__("Import Document"), () => dealer_management.document_import.open());
 	page.add_menu_item(__("Refresh"), () => wrapper.dealer_home.refresh());
 
@@ -99,7 +99,7 @@ class DealerHome {
 		const aging = this.aging_html(d.aging || [], inv);
 
 		this.$root.html(`
-			${this.hero_html(inv, d.leads)}
+			${this.hero_html(inv)}
 			${is_empty ? this.onboarding_html() : ""}
 			${this.nav_html(d)}
 			<h2 class="db-section-title">${__("At a glance")}</h2>
@@ -107,15 +107,9 @@ class DealerHome {
 			${this.pipeline_html(d.status_breakdown || [], inv.total)}
 			<div class="db-grid db-grid-2-1">
 				${this.recent_vehicles_html(d.recent_vehicles || [])}
-				${d.leads ? this.follow_ups_html(d.leads) : aging}
+				${aging}
 			</div>
-			${
-				d.sales
-					? `<div class="db-grid db-grid-2-1">${this.trend_card_html(d.sales)}${d.leads ? aging : ""}</div>`
-					: d.leads
-					? aging
-					: ""
-			}
+			${d.sales ? this.trend_card_html(d.sales) : ""}
 		`);
 
 		if (d.sales) this.render_trend_chart(d.sales.trend || []);
@@ -123,12 +117,10 @@ class DealerHome {
 		this.restore_search();
 	}
 
-	hero_html(inv, leads) {
+	hero_html(inv) {
 		const date = frappe.datetime.str_to_user(frappe.datetime.get_today());
 		const bits = [];
 		if (inv.total) bits.push(__("{0} units in stock", [inv.total]));
-		if (leads && leads.follow_ups_due)
-			bits.push(__("{0} follow-ups due", [leads.follow_ups_due]));
 		if (inv.problem) bits.push(__("{0} flagged as problem", [inv.problem]));
 		const summary = bits.length
 			? bits.map((b) => this.esc(b)).join(" · ")
@@ -143,7 +135,7 @@ class DealerHome {
 				</div>
 				<label class="db-search">
 					${frappe.utils.icon("search", "sm")}
-					<input type="search" class="db-search-input" placeholder="${__("Jump to… vehicles, leads, expenses")}"
+					<input type="search" class="db-search-input" placeholder="${__("Jump to… vehicles, sales, expenses")}"
 						aria-label="${__("Find a feature")}" autocomplete="off">
 				</label>
 			</div>`;
@@ -154,7 +146,6 @@ class DealerHome {
 	nav_sections(d) {
 		const inv = d.inventory || {};
 		const nav = d.nav || {};
-		const leads = d.leads;
 		const sales = d.sales;
 		const n = (v) => format_number(v || 0, null, 0);
 		const counted = (doctype, label) => (nav[doctype] != null ? __(label, [n(nav[doctype])]) : null);
@@ -165,10 +156,10 @@ class DealerHome {
 				title: __("Inventory"),
 				tiles: [
 					{
-						label: __("Vehicles"), icon: "car-front", tone: "indigo", doctype: "Dealer Vehicle", create: true,
+						label: __("Vehicles"), icon: "car-front", tone: "indigo", doctype: "Vehicle Inventory", create: true,
 						desc: __("Every unit from pickup to sale"),
 						stat: __("{0} in stock", [n(inv.total)]),
-						route: ["List", "Dealer Vehicle", { status: ["not in", ["Sold", "Wholesale"]] }],
+						route: ["List", "Vehicle Inventory", { status: ["not in", ["Sold", "Wholesale"]] }],
 					},
 					{
 						label: __("Acquisitions"), icon: "gavel", tone: "orange", doctype: "Vehicle Acquisition", create: true,
@@ -188,14 +179,8 @@ class DealerHome {
 				],
 			},
 			{
-				title: __("Sales & Customers"),
+				title: __("Sales & Expenses"),
 				tiles: [
-					{
-						label: __("Leads"), icon: "users", tone: "blue", doctype: "Dealer Lead", create: true,
-						desc: __("Prospects, follow-ups and appointments"),
-						stat: leads ? __("{0} open", [n(leads.open)]) : null,
-						badge: leads && leads.follow_ups_due ? __("{0} due", [leads.follow_ups_due]) : null,
-					},
 					{
 						label: __("Sales"), icon: "handshake", tone: "green", doctype: "Vehicle Sale", create: true,
 						desc: __("Deals, financing and gross profit"),
@@ -218,7 +203,7 @@ class DealerHome {
 						stat: __("Open chat"),
 					},
 					{
-						label: __("Import Document"), icon: "file-scan", tone: "ai", doctype: "Dealer Vehicle",
+						label: __("Import Document"), icon: "file-scan", tone: "ai", doctype: "Vehicle Inventory",
 						desc: __("Read a title, bill of sale or auction report"),
 						action: "import",
 						stat: __("Upload a file"),
@@ -376,7 +361,7 @@ class DealerHome {
 				"car-front",
 				"indigo",
 				__("{0} at asking", [this.money(inv.total_asking_value)]),
-				["List", "Dealer Vehicle", open_filter]
+				["List", "Vehicle Inventory", open_filter]
 			),
 			this.kpi(
 				__("Front-line Ready"),
@@ -384,7 +369,7 @@ class DealerHome {
 				"circle-check",
 				"green",
 				__("Avg {0} days on lot", [inv.avg_days_on_lot || 0]),
-				["List", "Dealer Vehicle", { status: ["in", ["Frontline", "Available"]] }]
+				["List", "Vehicle Inventory", { status: ["in", ["Frontline", "Available"]] }]
 			),
 		];
 
@@ -426,7 +411,7 @@ class DealerHome {
 					"wrench",
 					"blue",
 					null,
-					["List", "Dealer Vehicle", { status: "In Recon" }]
+					["List", "Vehicle Inventory", { status: "In Recon" }]
 				)
 			);
 		}
@@ -459,7 +444,7 @@ class DealerHome {
 						<div class="db-card-title">${__("Inventory Pipeline")}</div>
 						<div class="db-card-sub">${__("Where every open unit is, from pickup to pending sale")}</div>
 					</div>
-					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Dealer Vehicle"]))}'>${__("View all")} →</a>
+					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Vehicle Inventory"]))}'>${__("View all")} →</a>
 				</div>
 				<div class="db-pipe-bar">${total ? segments : `<div class="db-pipe-seg db-pipe-empty" style="flex:1"></div>`}</div>
 				<div class="db-stages">${stages}</div>
@@ -560,7 +545,7 @@ class DealerHome {
 					.filter(Boolean)
 					.join(" · ");
 				return `
-				<tr class="db-clickable" data-route='${this.esc(JSON.stringify(["Form", "Dealer Vehicle", v.name]))}'>
+				<tr class="db-clickable" data-route='${this.esc(JSON.stringify(["Form", "Vehicle Inventory", v.name]))}'>
 					<td>
 						<div class="db-veh">
 							<span class="db-veh-avatar">${this.icon("car-front")}</span>
@@ -583,7 +568,7 @@ class DealerHome {
 						<div class="db-card-title">${__("Recently Added")}</div>
 						<div class="db-card-sub">${__("Newest units in inventory")}</div>
 					</div>
-					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Dealer Vehicle"]))}'>${__("View all")} →</a>
+					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Vehicle Inventory"]))}'>${__("View all")} →</a>
 				</div>
 				${
 					vehicles.length
@@ -593,35 +578,6 @@ class DealerHome {
 						</table></div>`
 						: `<div class="db-empty">${__("No vehicles yet. Add one to get started.")}</div>`
 				}
-			</div>`;
-	}
-
-	follow_ups_html(leads) {
-		const items = (leads.follow_ups || [])
-			.map((l) => {
-				const name = [l.first_name, l.last_name].filter(Boolean).join(" ") || l.name;
-				const overdue = l.next_follow_up < frappe.datetime.get_today();
-				return `
-				<li class="db-clickable" data-route='${this.esc(JSON.stringify(["Form", "Dealer Lead", l.name]))}'>
-					<span class="db-avatar">${this.esc(frappe.get_abbr(name))}</span>
-					<div class="db-li-body">
-						<div class="db-li-title">${this.esc(name)}</div>
-						<div class="db-li-sub">${this.esc(__(l.status))}${l.phone ? " · " + this.esc(l.phone) : ""}</div>
-					</div>
-					<span class="db-badge ${overdue ? "db-badge-red" : "db-badge-amber"}">${overdue ? __("Overdue") : __("Today")}</span>
-				</li>`;
-			})
-			.join("");
-		return `
-			<div class="db-card">
-				<div class="db-card-head">
-					<div>
-						<div class="db-card-title">${__("Follow-ups Due")}</div>
-						<div class="db-card-sub">${__("{0} open leads · {1} new", [leads.open, leads.new])}</div>
-					</div>
-					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Dealer Lead"]))}'>${__("Leads")} →</a>
-				</div>
-				${items ? `<ul class="db-list">${items}</ul>` : `<div class="db-empty db-empty-sm">${__("You're all caught up. 🎉")}</div>`}
 			</div>`;
 	}
 
@@ -657,7 +613,7 @@ class DealerHome {
 			});
 
 		this.$root.find(".db-stage").on("click", (e) => {
-			frappe.set_route("List", "Dealer Vehicle", { status: e.currentTarget.dataset.status });
+			frappe.set_route("List", "Vehicle Inventory", { status: e.currentTarget.dataset.status });
 		});
 
 		this.$root.find(".db-age-row").on("click", (e) => {
@@ -669,14 +625,14 @@ class DealerHome {
 				stale: ["between", [ago(90), ago(61)]],
 				critical: ["<", ago(90)],
 			};
-			frappe.set_route("List", "Dealer Vehicle", {
+			frappe.set_route("List", "Vehicle Inventory", {
 				status: open_filter,
 				lot_date: ranges[e.currentTarget.dataset.age],
 			});
 		});
 
 		const actions = {
-			"add-vehicle": () => frappe.new_doc("Dealer Vehicle"),
+			"add-vehicle": () => frappe.new_doc("Vehicle Inventory"),
 			import: () => dealer_management.document_import.open(),
 			"ai-settings": () => frappe.set_route("Form", "AI Settings"),
 		};

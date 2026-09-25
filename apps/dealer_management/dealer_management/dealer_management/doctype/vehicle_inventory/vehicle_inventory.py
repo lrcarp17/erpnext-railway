@@ -5,7 +5,7 @@ from frappe.utils import cint, flt, getdate, now_datetime, date_diff, today
 import re
 
 
-class DealerVehicle(Document):
+class VehicleInventory(Document):
     def validate(self):
         self.validate_vin()
         self.calculate_days_on_lot()
@@ -58,7 +58,7 @@ class DealerVehicle(Document):
 
         last_vehicle = frappe.db.sql(
             """
-            SELECT vehicle_id FROM `tabDealer Vehicle`
+            SELECT vehicle_id FROM `tabVehicle Inventory`
             WHERE vehicle_id LIKE %s
             ORDER BY vehicle_id DESC
             LIMIT 1
@@ -83,7 +83,7 @@ class DealerVehicle(Document):
 
         last_stock = frappe.db.sql(
             """
-            SELECT stock_number FROM `tabDealer Vehicle`
+            SELECT stock_number FROM `tabVehicle Inventory`
             WHERE stock_number REGEXP '^[0-9]+$'
             ORDER BY CAST(stock_number AS UNSIGNED) DESC
             LIMIT 1
@@ -157,7 +157,7 @@ class DealerVehicle(Document):
 
 def get_vehicle_summary(vehicle_name):
     """Get a summary of the vehicle for display."""
-    vehicle = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    vehicle = frappe.get_doc("Vehicle Inventory", vehicle_name)
     return {
         "vehicle_id": vehicle.vehicle_id,
         "vin": vehicle.vin,
@@ -181,7 +181,7 @@ def decode_vin(vin):
 @frappe.whitelist()
 def get_vehicle_warnings(vehicle_name):
     """Get a list of warnings/alerts for a vehicle."""
-    doc = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    doc = frappe.get_doc("Vehicle Inventory", vehicle_name)
     warnings = []
 
     if not doc.title_received:
@@ -227,7 +227,7 @@ def get_vehicle_warnings(vehicle_name):
             "message": "Lien release not received"
         })
 
-    if doc.status in ("Frontline", "Available") and len(doc.photos or []) < 5:
+    if doc.status in ("Frontline", "Available") and 0 < len(doc.photos or []) < 5:
         warnings.append({
             "type": "info",
             "icon": "camera",
@@ -242,10 +242,10 @@ def upload_vehicle_photos(vehicle_name, files):
     """Upload multiple photos to a vehicle."""
     import json
     
-    frappe.has_permission("Dealer Vehicle", "write", throw=True)
+    frappe.has_permission("Vehicle Inventory", "write", throw=True)
     
     files = json.loads(files) if isinstance(files, str) else files
-    doc = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    doc = frappe.get_doc("Vehicle Inventory", vehicle_name)
     
     for file_url in files:
         doc.append("photos", {
@@ -255,3 +255,82 @@ def upload_vehicle_photos(vehicle_name, files):
     
     doc.save()
     return {"success": True, "count": len(files)}
+
+
+# Fields shown on the overview for each related record.
+ACQUISITION_FIELDS = [
+    "name", "source_type", "source", "source_name", "purchase_date", "seller_name",
+    "auction_name", "auction_location", "auction_date", "lane_number", "auction_id",
+    "bid_amount", "buyer_fee", "transport_cost", "title_fee", "other_fees",
+    "total_acquisition_cost", "had_existing_lien", "lien_payoff_amount",
+    "estimated_recon", "estimated_repairs", "estimated_detail", "total_estimated_turnover",
+]
+CONDITION_FIELDS = [
+    "name", "inspection_date", "inspected_by", "overall_rating", "exterior_rating",
+    "interior_rating", "mechanical_rating", "tire_rating", "has_damage",
+    "check_engine_light", "smog_status",
+]
+MARKET_FIELDS = [
+    "name", "info_date", "retail_value", "wholesale_value", "trade_in_value",
+    "recommended_price", "market_trend", "days_to_sell_estimate",
+]
+SALE_FIELDS = [
+    "name", "docstatus", "sale_date", "buyer_name", "sale_price",
+    "gross_profit", "net_profit", "profit_margin",
+]
+
+
+@frappe.whitelist()
+def get_vehicle_overview(vehicle_name):
+    """Everything the read-only vehicle view shows besides the vehicle itself:
+    its acquisition, latest inspection and valuation, sale, price history and
+    alerts. Records the user cannot read come back as None."""
+    doc = frappe.get_doc("Vehicle Inventory", vehicle_name)
+    doc.check_permission("read")
+
+    return {
+        "acquisition": _related("Vehicle Acquisition", doc.acquisition, doc.name, ACQUISITION_FIELDS, "purchase_date"),
+        "condition": _related("Vehicle Condition", doc.condition, doc.name, CONDITION_FIELDS, "inspection_date"),
+        "market": _related("Vehicle Market Info", doc.market_info, doc.name, MARKET_FIELDS, "info_date"),
+        "sale": _related("Vehicle Sale", doc.sale, doc.name, SALE_FIELDS, "sale_date", {"docstatus": ("<", 2)}),
+        "price_history": _price_history(doc.name),
+        "warnings": get_vehicle_warnings(doc.name),
+    }
+
+
+def _related(doctype, linked, vehicle, fields, date_field, extra_filters=None):
+    """The record the vehicle links to, else the latest one that links back to it."""
+    if not frappe.has_permission(doctype, "read"):
+        return None
+    name = linked if linked and frappe.db.exists(doctype, linked) else None
+    if not name:
+        filters = {"vehicle": vehicle, **(extra_filters or {})}
+        found = frappe.get_all(doctype, filters=filters, pluck="name", order_by=f"{date_field} desc, creation desc", limit=1)
+        name = found[0] if found else None
+    if not name:
+        return None
+    row = frappe.db.get_value(doctype, name, fields, as_dict=True)
+    if doctype == "Vehicle Acquisition" and row and row.source:
+        row.source_label = frappe.db.get_value("Acquisition Source", row.source, "source_name") or row.source
+    return row
+
+
+def _price_history(vehicle):
+    """Asking price changes, newest first, from the document's version log."""
+    changes = []
+    versions = frappe.get_all(
+        "Version",
+        filters={"ref_doctype": "Vehicle Inventory", "docname": vehicle},
+        fields=["data", "creation"],
+        order_by="creation desc",
+        limit=200,
+    )
+    for version in versions:
+        try:
+            data = frappe.parse_json(version.data) or {}
+        except Exception:
+            continue
+        for field, old, new in data.get("changed") or []:
+            if field == "asking_price" and flt(old) != flt(new):
+                changes.append({"date": version.creation, "old": flt(old), "new": flt(new)})
+    return changes

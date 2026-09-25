@@ -146,7 +146,7 @@ def check_budget():
 @frappe.whitelist()
 def get_budget_status():
     """This month's token use against the budget, for the assistant's budget meter."""
-    frappe.has_permission("Dealer Vehicle", "read", throw=True)
+    frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     budget, enforce = _budget_settings()
     start, next_start = _month_bounds()

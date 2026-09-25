@@ -27,7 +27,7 @@ class VehicleSale(Document):
         if not self.vehicle:
             return
             
-        vehicle = frappe.get_doc("Dealer Vehicle", self.vehicle)
+        vehicle = frappe.get_doc("Vehicle Inventory", self.vehicle)
         total_investment = flt(vehicle.total_investment) if vehicle.total_investment else 0
         
         self.gross_profit = flt(self.sale_price) - total_investment
@@ -42,22 +42,15 @@ class VehicleSale(Document):
     def on_submit(self):
         """Update Vehicle status to Sold and set sale_date on submit."""
         if self.vehicle:
-            vehicle = frappe.get_doc("Dealer Vehicle", self.vehicle)
+            vehicle = frappe.get_doc("Vehicle Inventory", self.vehicle)
             vehicle.db_set("status", "Sold", update_modified=True)
             vehicle.db_set("sale_date", self.sale_date, update_modified=False)
             vehicle.db_set("sale", self.name, update_modified=False)
-            
-            if self.lead:
-                lead = frappe.get_doc("Dealer Lead", self.lead)
-                if hasattr(lead, "status"):
-                    lead.db_set("status", "Sold", update_modified=True)
-                if hasattr(lead, "converted_sale"):
-                    lead.db_set("converted_sale", self.name, update_modified=False)
 
     def on_cancel(self):
         """Revert Vehicle status on cancel."""
         if self.vehicle:
-            vehicle = frappe.get_doc("Dealer Vehicle", self.vehicle)
+            vehicle = frappe.get_doc("Vehicle Inventory", self.vehicle)
             vehicle.db_set("status", "Available", update_modified=True)
             vehicle.db_set("sale_date", None, update_modified=False)
             vehicle.db_set("sale", None, update_modified=False)

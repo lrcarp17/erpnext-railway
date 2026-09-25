@@ -35,7 +35,7 @@ class VehicleAcquisition(Document):
     def on_update(self):
         """Update linked vehicle's acquisition reference if not already set."""
         if self.vehicle:
-            vehicle = frappe.get_doc("Dealer Vehicle", self.vehicle)
+            vehicle = frappe.get_doc("Vehicle Inventory", self.vehicle)
             if not vehicle.acquisition or vehicle.acquisition != self.name:
                 vehicle.db_set("acquisition", self.name, update_modified=False)
                 vehicle.db_set("acquisition_date", self.purchase_date, update_modified=False)

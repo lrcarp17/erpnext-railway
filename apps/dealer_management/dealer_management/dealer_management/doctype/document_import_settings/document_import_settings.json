@@ -22,7 +22,7 @@
   {
    "fieldname": "help_html",
    "fieldtype": "HTML",
-   "options": "<p>Upload a <b>title</b>, <b>bill of sale</b>, or <b>listing</b> from the Dealer Vehicle list (<i>Import from Document</i>) or from a vehicle (<i>Update from Document</i>). The document is read by Claude, matched to an existing vehicle by VIN, and you review every change before it is saved.</p><p>Configure your Anthropic API key in <b>AI Settings</b>. Use this page only if you need a different model for document import.</p>"
+   "options": "<p>Upload a <b>title</b>, <b>bill of sale</b>, or <b>listing</b> from the Vehicle Inventory list (<i>Import from Document</i>) or from a vehicle (<i>Update from Document</i>). The document is read by Claude, matched to an existing vehicle by VIN, and you review every change before it is saved.</p><p>Configure your Anthropic API key in <b>AI Settings</b>. Use this page only if you need a different model for document import.</p>"
   }
  ],
  "issingle": 1,

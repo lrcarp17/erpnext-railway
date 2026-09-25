@@ -2,7 +2,7 @@
 
 Flow:
 1. ``extract_document`` reads an uploaded File with Claude, matches the VIN to an
-   existing Dealer Vehicle, and returns the proposed field changes for review.
+   existing Vehicle Inventory, and returns the proposed field changes for review.
 2. ``apply_document`` saves the fields the user confirmed: it updates the matched
    vehicle (or creates a new one), attaches the document, and optionally adds a
    listing row, a draft sale / acquisition, or auction condition and MMR records.
@@ -23,7 +23,7 @@ MAX_FILE_BYTES = 30 * 1024 * 1024
 
 DOCUMENT_TYPES = ("title", "bill_of_sale", "listing", "auction_listing", "other")
 
-# Dealer Vehicle fields that can be filled from any document, in display order.
+# Vehicle Inventory fields that can be filled from any document, in display order.
 VEHICLE_FIELDS = (
     "vin",
     "year",
@@ -42,7 +42,7 @@ VEHICLE_FIELDS = (
 
 TITLE_FIELDS = ("title_status", "title_state", "title_number")
 
-# Select fields on Dealer Vehicle whose extracted values must match an option.
+# Select fields on Vehicle Inventory whose extracted values must match an option.
 SELECT_FIELDS = (
     "body_style",
     "transmission",
@@ -73,9 +73,9 @@ def extract_document(file_url, document_type=None, vehicle=None):
     Args:
         file_url: URL of an uploaded File.
         document_type: Optional hint - title, bill_of_sale, listing or auction_listing.
-        vehicle: Optional Dealer Vehicle the user started from.
+        vehicle: Optional Vehicle Inventory the user started from.
     """
-    frappe.has_permission("Dealer Vehicle", "read", throw=True)
+    frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     content, filename = _get_file_content(file_url)
     extracted = _call_claude(content, filename, document_type)
@@ -95,20 +95,20 @@ def extract_document(file_url, document_type=None, vehicle=None):
             _("The VIN {0} fails the check-digit test. It may have been misread; please verify it.").format(vin)
         )
 
-    matched = frappe.db.get_value("Dealer Vehicle", {"vin": vin}, "name") if vin else None
+    matched = frappe.db.get_value("Vehicle Inventory", {"vin": vin}, "name") if vin else None
     if vehicle and matched and vehicle != matched:
         warnings.append(
             _("The document's VIN belongs to {0}, not the vehicle you started from ({1}).").format(matched, vehicle)
         )
     elif vehicle and not matched:
-        current_vin = frappe.db.get_value("Dealer Vehicle", vehicle, "vin")
+        current_vin = frappe.db.get_value("Vehicle Inventory", vehicle, "vin")
         if vin and current_vin and vin != current_vin:
             warnings.append(
                 _("The document's VIN ({0}) does not match this vehicle's VIN ({1}).").format(vin, current_vin)
             )
         matched = vehicle
 
-    current = frappe.get_doc("Dealer Vehicle", matched) if matched else None
+    current = frappe.get_doc("Vehicle Inventory", matched) if matched else None
     proposed = build_vehicle_values(doc_type, extracted, is_new=current is None)
 
     return {
@@ -128,13 +128,13 @@ def extract_document(file_url, document_type=None, vehicle=None):
 
 @frappe.whitelist()
 def apply_document(file_url, document_type, values, vehicle=None, listing=None, transaction=None, auction=None):
-    """Save the reviewed values to a Dealer Vehicle (updating or creating it).
+    """Save the reviewed values to a Vehicle Inventory (updating or creating it).
 
     Args:
         file_url: URL of the uploaded document, attached to the vehicle.
         document_type: title, bill_of_sale, listing, auction_listing or other.
-        values: JSON dict of Dealer Vehicle fieldname -> value to set.
-        vehicle: Dealer Vehicle to update. When empty, the VIN is looked up and
+        values: JSON dict of Vehicle Inventory fieldname -> value to set.
+        vehicle: Vehicle Inventory to update. When empty, the VIN is looked up and
             a new vehicle is created if none exists.
         listing: Optional JSON dict for a Vehicle Listing row.
         transaction: Optional JSON dict; ``record_as`` of Sale or Purchase creates
@@ -152,20 +152,20 @@ def apply_document(file_url, document_type, values, vehicle=None, listing=None, 
         values["vin"] = normalize_vin(values["vin"])
 
     if not vehicle and values.get("vin"):
-        vehicle = frappe.db.get_value("Dealer Vehicle", {"vin": values["vin"]}, "name")
+        vehicle = frappe.db.get_value("Vehicle Inventory", {"vin": values["vin"]}, "name")
 
     if vehicle:
-        doc = frappe.get_doc("Dealer Vehicle", vehicle)
+        doc = frappe.get_doc("Vehicle Inventory", vehicle)
         doc.check_permission("write")
         created = False
     else:
-        frappe.has_permission("Dealer Vehicle", "create", throw=True)
+        frappe.has_permission("Vehicle Inventory", "create", throw=True)
         missing = [f for f in ("vin", "year", "make", "model") if not values.get(f)]
         if missing:
             frappe.throw(
                 _("A new vehicle needs {0}. Fill them in before saving.").format(", ".join(missing))
             )
-        doc = frappe.new_doc("Dealer Vehicle")
+        doc = frappe.new_doc("Vehicle Inventory")
         created = True
 
     doc.update(values)
@@ -233,7 +233,7 @@ def match_option(value, options):
 
 
 def build_vehicle_values(document_type, extracted, is_new, select_options=None):
-    """Map extracted data to Dealer Vehicle fieldnames."""
+    """Map extracted data to Vehicle Inventory fieldnames."""
     values = {}
     for field in VEHICLE_FIELDS:
         values[field] = extracted.get(field)
@@ -620,7 +620,7 @@ def _get_file_content(file_url):
 
 
 def _select_options():
-    meta = frappe.get_meta("Dealer Vehicle")
+    meta = frappe.get_meta("Vehicle Inventory")
     return {f: (meta.get_field(f).options or "").split("\n") for f in SELECT_FIELDS if meta.get_field(f)}
 
 
@@ -648,7 +648,7 @@ def _vehicle_label(doc):
 
 
 def _describe_changes(proposed, current):
-    meta = frappe.get_meta("Dealer Vehicle")
+    meta = frappe.get_meta("Vehicle Inventory")
     changes = []
     for fieldname, new in proposed.items():
         df = meta.get_field(fieldname)

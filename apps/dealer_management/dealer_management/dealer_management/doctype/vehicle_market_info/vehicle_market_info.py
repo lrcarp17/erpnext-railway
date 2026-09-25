@@ -9,7 +9,7 @@ class VehicleMarketInfo(Document):
     def on_update(self):
         """Update linked vehicle's market_info reference if not already set."""
         if self.vehicle:
-            vehicle = frappe.get_doc("Dealer Vehicle", self.vehicle)
+            vehicle = frappe.get_doc("Vehicle Inventory", self.vehicle)
             if not vehicle.market_info or vehicle.market_info != self.name:
                 vehicle.db_set("market_info", self.name, update_modified=False)
                 
