@@ -9,12 +9,14 @@ class DealerVehicle(Document):
     def validate(self):
         self.validate_vin()
         self.calculate_days_on_lot()
+        self.calculate_total_expenses()
         self.calculate_total_investment()
         self.calculate_potential_profit()
         self.set_note_added_by()
 
     def before_insert(self):
         self.generate_vehicle_id()
+        self.generate_stock_number()
 
     def validate_vin(self):
         """Validate VIN format: 17 characters, no I, O, Q."""
@@ -74,6 +76,28 @@ class DealerVehicle(Document):
 
         self.vehicle_id = f"{prefix}{next_number:05d}"
 
+    def generate_stock_number(self):
+        """Auto-generate stock_number on insert if not provided."""
+        if self.stock_number:
+            return
+
+        last_stock = frappe.db.sql(
+            """
+            SELECT stock_number FROM `tabDealer Vehicle`
+            WHERE stock_number REGEXP '^[0-9]+$'
+            ORDER BY CAST(stock_number AS UNSIGNED) DESC
+            LIMIT 1
+            """,
+            as_dict=True,
+        )
+
+        if last_stock and last_stock[0].stock_number:
+            next_number = cint(last_stock[0].stock_number) + 1
+        else:
+            next_number = 1001
+
+        self.stock_number = str(next_number)
+
     def calculate_days_on_lot(self):
         """Calculate days_on_lot from lot_date."""
         if self.lot_date:
@@ -83,21 +107,29 @@ class DealerVehicle(Document):
         else:
             self.days_on_lot = 0
 
+    def calculate_total_expenses(self):
+        """Calculate total_expenses from the expenses child table."""
+        total = 0.0
+        for expense in self.expenses or []:
+            total += flt(expense.amount)
+        self.total_expenses = total
+
     def calculate_total_investment(self):
         """Calculate total_investment from acquisition cost + expenses."""
-        total = 0.0
+        total = flt(self.total_expenses)
 
         if self.acquisition:
             acquisition_doc = frappe.get_doc("Vehicle Acquisition", self.acquisition)
-            if hasattr(acquisition_doc, "purchase_price"):
-                total += flt(acquisition_doc.purchase_price)
-            if hasattr(acquisition_doc, "auction_fees"):
-                total += flt(acquisition_doc.auction_fees)
+            if hasattr(acquisition_doc, "bid_amount"):
+                total += flt(acquisition_doc.bid_amount)
+            if hasattr(acquisition_doc, "buyer_fee"):
+                total += flt(acquisition_doc.buyer_fee)
             if hasattr(acquisition_doc, "transport_cost"):
                 total += flt(acquisition_doc.transport_cost)
-
-        for expense in self.expenses or []:
-            total += flt(expense.amount)
+            if hasattr(acquisition_doc, "title_fee"):
+                total += flt(acquisition_doc.title_fee)
+            if hasattr(acquisition_doc, "other_fees"):
+                total += flt(acquisition_doc.other_fees)
 
         self.total_investment = total
 
@@ -144,3 +176,82 @@ def decode_vin(vin):
         "vin": vin,
         "message": "VIN decoding requires integration with a VIN decoder service",
     }
+
+
+@frappe.whitelist()
+def get_vehicle_warnings(vehicle_name):
+    """Get a list of warnings/alerts for a vehicle."""
+    doc = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    warnings = []
+
+    if not doc.title_received:
+        warnings.append({
+            "type": "warning",
+            "icon": "file",
+            "message": "Title not received"
+        })
+
+    if not doc.photos or len(doc.photos) == 0:
+        warnings.append({
+            "type": "warning", 
+            "icon": "camera",
+            "message": "No photos uploaded"
+        })
+
+    if not doc.acquisition:
+        warnings.append({
+            "type": "danger",
+            "icon": "dollar-sign",
+            "message": "No acquisition record (missing purchase price)"
+        })
+    else:
+        acq = frappe.get_doc("Vehicle Acquisition", doc.acquisition)
+        if not flt(acq.bid_amount):
+            warnings.append({
+                "type": "danger",
+                "icon": "dollar-sign", 
+                "message": "Purchase price not set"
+            })
+
+    if not doc.asking_price:
+        warnings.append({
+            "type": "info",
+            "icon": "tag",
+            "message": "Asking price not set"
+        })
+
+    if doc.has_lien and not doc.lien_release_received:
+        warnings.append({
+            "type": "warning",
+            "icon": "link",
+            "message": "Lien release not received"
+        })
+
+    if doc.status in ("Frontline", "Available") and len(doc.photos or []) < 5:
+        warnings.append({
+            "type": "info",
+            "icon": "camera",
+            "message": f"Only {len(doc.photos or [])} photos - consider adding more"
+        })
+
+    return warnings
+
+
+@frappe.whitelist()
+def upload_vehicle_photos(vehicle_name, files):
+    """Upload multiple photos to a vehicle."""
+    import json
+    
+    frappe.has_permission("Dealer Vehicle", "write", throw=True)
+    
+    files = json.loads(files) if isinstance(files, str) else files
+    doc = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    
+    for file_url in files:
+        doc.append("photos", {
+            "photo": file_url,
+            "photo_type": "Exterior",
+        })
+    
+    doc.save()
+    return {"success": True, "count": len(files)}
