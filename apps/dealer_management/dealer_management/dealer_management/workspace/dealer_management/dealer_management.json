@@ -1,5 +1,18 @@
 {
-  "charts": [],
+  "charts": [
+    {
+      "chart_name": "Inventory by Status",
+      "label": "Inventory by Status"
+    },
+    {
+      "chart_name": "Monthly Sales",
+      "label": "Monthly Sales"
+    },
+    {
+      "chart_name": "Monthly Revenue",
+      "label": "Monthly Revenue"
+    }
+  ],
   "content": null,
   "creation": "2024-01-01 00:00:00.000000",
   "docstatus": 0,
@@ -224,7 +237,32 @@
   "modified_by": "Administrator",
   "module": "Dealer Management",
   "name": "Dealer Management",
-  "number_cards": [],
+  "number_cards": [
+    {
+      "label": "Total Inventory",
+      "number_card_name": "Total Inventory"
+    },
+    {
+      "label": "Awaiting Pickup",
+      "number_card_name": "Awaiting Pickup"
+    },
+    {
+      "label": "Awaiting Title",
+      "number_card_name": "Awaiting Title"
+    },
+    {
+      "label": "Frontline Ready",
+      "number_card_name": "Frontline Ready"
+    },
+    {
+      "label": "Sold This Month",
+      "number_card_name": "Vehicles Sold This Month"
+    },
+    {
+      "label": "Revenue This Month",
+      "number_card_name": "Revenue This Month"
+    }
+  ],
   "owner": "Administrator",
   "parent_page": "",
   "public": 1,
@@ -233,6 +271,13 @@
   "roles": [],
   "sequence_id": 1,
   "shortcuts": [
+    {
+      "color": "Yellow",
+      "icon": "chat",
+      "label": "Inventory Assistant",
+      "link_to": "inventory-assistant",
+      "type": "Page"
+    },
     {
       "color": "Blue",
       "doc_view": "New",

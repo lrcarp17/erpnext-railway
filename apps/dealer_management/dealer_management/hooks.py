@@ -247,7 +247,9 @@ fixtures = [
     "Expense Category",
     "Listing Platform",
     "Lienholder",
-    "Acquisition Source"
+    "Acquisition Source",
+    "Number Card",
+    "Dashboard Chart",
 ]
 
 # Auto-naming Series

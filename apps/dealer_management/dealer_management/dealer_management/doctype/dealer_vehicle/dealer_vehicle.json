@@ -125,7 +125,7 @@
             "in_list_view": 1,
             "in_standard_filter": 1,
             "label": "Status",
-            "options": "Available\nIn Recon\nFrontline\nPending Sale\nSold\nWholesale\nProblem",
+            "options": "Awaiting Pickup\nAwaiting Title\nPre-Sale\nIn Recon\nFrontline\nAvailable\nPending Sale\nSold\nWholesale\nProblem",
             "reqd": 1
         },
         {
