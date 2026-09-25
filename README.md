@@ -41,7 +41,7 @@ The stack is three pieces: ERPNext, a private MariaDB, and a Railway bucket for 
 
 **Custom domain.** Add it in the ERPNext service's Settings → Networking, then set `ERPNEXT_URL` to `https://your.domain` so links in emails and PDFs use it.
 
-**Other Frappe apps.** Edit `apps.json` at the repo root (frappe_docker format: `url` + `branch` per app). The Dockerfile builds a custom image from that list and the entrypoint installs each app on the site. Every deploy clones each app's branch fresh, so to ship new commits to an app, redeploy the ERPNext service.
+**Other Frappe apps.** Edit `apps.json` at the repo root (frappe_docker format: `url` + `branch` per app). The Dockerfile builds a custom image from that list and the entrypoint installs each app on the site. Docker caches the cloned apps, so to ship new commits pushed to an app's branch, set the ERPNext service variable `APPS_REVISION` to a new value (e.g. the app's commit hash) and redeploy.
 
 **Private repos.** For private GitHub repositories, use `${GITHUB_TOKEN}` in the URL and set the token as a build argument in Railway:
 

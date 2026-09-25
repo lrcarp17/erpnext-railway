@@ -75,11 +75,14 @@ done
 # Frappe redraws its progress bars with \r, which Railway would log as one huge line;
 # keep only each bar's final state.
 bars() { sed -u 's/.*\r//'; }
-# Apps shipped in the image (apps.txt), excluding frappe itself.
+# Apps shipped in the image (apps.txt), excluding frappe itself. bench writes apps.txt
+# without a trailing newline, so the `|| [ -n "$app" ]` keeps its last line. Its order
+# is directory-listing order, so erpnext is moved first: other apps build on it.
 site_apps=()
-while read -r app; do
-  [ -n "$app" ] && [ "$app" != frappe ] && site_apps+=("$app")
+while read -r app || [ -n "$app" ]; do
+  [ -n "$app" ] && [ "$app" != frappe ] && [ "$app" != erpnext ] && site_apps+=("$app")
 done < sites/apps.txt
+grep -qx erpnext sites/apps.txt && site_apps=(erpnext "${site_apps[@]}")
 
 installed() { "${AS_FRAPPE[@]}" bench --site "$SITE" list-apps 2>/dev/null | grep -q '^erpnext'; }
 site_has_app() { "${AS_FRAPPE[@]}" bench --site "$SITE" list-apps 2>/dev/null | grep -qE "^$1([[:space:]]|$)"; }
