@@ -122,7 +122,7 @@ fi
 
 # A new image version needs `bench migrate` before it serves the site: patches,
 # schema changes and fixtures. A database backup is taken first. Also install any
-# apps added to the image since the last boot (e.g. Dealerbase).
+# apps added to the image since the last boot (e.g. Dealerbase in apps/).
 version=$(jq -r 'to_entries | map("\(.key) \(.value.version)") | join(", ")' sites/apps.json)
 version="$version, code $(cat /home/frappe/apps.hash 2>/dev/null || echo unknown)"
 if [ "$(cat "sites/$SITE/.railway-version" 2>/dev/null)" != "$version" ]; then

@@ -1,0 +1,162 @@
+[
+  {
+    "doctype": "Expense Category",
+    "name": "Reconditioning",
+    "category_name": "Reconditioning",
+    "expense_type": "Vehicle",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Detail",
+    "category_name": "Detail",
+    "expense_type": "Vehicle",
+    "parent_category": "Reconditioning",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Paint/Body",
+    "category_name": "Paint/Body",
+    "expense_type": "Vehicle",
+    "parent_category": "Reconditioning",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Mechanical Repair",
+    "category_name": "Mechanical Repair",
+    "expense_type": "Vehicle",
+    "parent_category": "Reconditioning",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Tires",
+    "category_name": "Tires",
+    "expense_type": "Vehicle",
+    "parent_category": "Reconditioning",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Glass",
+    "category_name": "Glass",
+    "expense_type": "Vehicle",
+    "parent_category": "Reconditioning",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Upholstery",
+    "category_name": "Upholstery",
+    "expense_type": "Vehicle",
+    "parent_category": "Reconditioning",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Inspection/Smog",
+    "category_name": "Inspection/Smog",
+    "expense_type": "Vehicle",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Transport",
+    "category_name": "Transport",
+    "expense_type": "Vehicle",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Registration/Title",
+    "category_name": "Registration/Title",
+    "expense_type": "Vehicle",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Storage",
+    "category_name": "Storage",
+    "expense_type": "Vehicle",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Photography",
+    "category_name": "Photography",
+    "expense_type": "Vehicle",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Rent/Lease",
+    "category_name": "Rent/Lease",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Utilities",
+    "category_name": "Utilities",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Insurance",
+    "category_name": "Insurance",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Payroll",
+    "category_name": "Payroll",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Marketing/Advertising",
+    "category_name": "Marketing/Advertising",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Software/Subscriptions",
+    "category_name": "Software/Subscriptions",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Professional Services",
+    "category_name": "Professional Services",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Office Supplies",
+    "category_name": "Office Supplies",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Licenses/Permits",
+    "category_name": "Licenses/Permits",
+    "expense_type": "Company",
+    "is_active": 1
+  },
+  {
+    "doctype": "Expense Category",
+    "name": "Miscellaneous",
+    "category_name": "Miscellaneous",
+    "expense_type": "Both",
+    "is_active": 1
+  }
+]

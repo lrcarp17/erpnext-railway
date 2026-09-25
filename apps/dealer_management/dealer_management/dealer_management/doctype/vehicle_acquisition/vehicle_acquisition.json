@@ -1,0 +1,332 @@
+{
+  "actions": [],
+  "autoname": "format:ACQ-{YYYY}-{#####}",
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "vehicle_section",
+    "vehicle",
+    "source_type",
+    "source",
+    "source_name",
+    "column_break_source",
+    "purchase_date",
+    "seller_name",
+    "seller_contact",
+    "auction_details_section",
+    "auction_name",
+    "auction_location",
+    "auction_date",
+    "column_break_auction",
+    "lane_number",
+    "auction_id",
+    "costs_section",
+    "bid_amount",
+    "buyer_fee",
+    "transport_cost",
+    "column_break_costs",
+    "title_fee",
+    "other_fees",
+    "total_acquisition_cost",
+    "lien_payoff_section",
+    "had_existing_lien",
+    "previous_lienholder",
+    "previous_lienholder_name",
+    "column_break_lien",
+    "lien_payoff_amount",
+    "lien_payoff_date",
+    "lien_payoff_confirmation",
+    "turnover_estimates_section",
+    "estimated_recon",
+    "estimated_repairs",
+    "estimated_detail",
+    "column_break_turnover",
+    "total_estimated_turnover",
+    "documents_section",
+    "purchase_receipt",
+    "title_image",
+    "notes"
+  ],
+  "fields": [
+    {
+      "fieldname": "vehicle_section",
+      "fieldtype": "Section Break",
+      "label": "Vehicle & Source"
+    },
+    {
+      "fieldname": "vehicle",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Vehicle",
+      "options": "Dealer Vehicle",
+      "reqd": 1
+    },
+    {
+      "fieldname": "source_type",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Source Type",
+      "options": "\nAuction\nTrade-In\nPrivate Purchase\nDealer Purchase\nRepo",
+      "reqd": 1
+    },
+    {
+      "fieldname": "source",
+      "fieldtype": "Link",
+      "label": "Source",
+      "options": "Acquisition Source"
+    },
+    {
+      "fieldname": "source_name",
+      "fieldtype": "Data",
+      "label": "Source Name",
+      "description": "Manual entry if not in list"
+    },
+    {
+      "fieldname": "column_break_source",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "purchase_date",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Purchase Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "seller_name",
+      "fieldtype": "Data",
+      "label": "Seller Name"
+    },
+    {
+      "fieldname": "seller_contact",
+      "fieldtype": "Data",
+      "label": "Seller Contact"
+    },
+    {
+      "fieldname": "auction_details_section",
+      "fieldtype": "Section Break",
+      "label": "Auction Details",
+      "depends_on": "eval:doc.source_type=='Auction'"
+    },
+    {
+      "fieldname": "auction_name",
+      "fieldtype": "Data",
+      "label": "Auction Name"
+    },
+    {
+      "fieldname": "auction_location",
+      "fieldtype": "Data",
+      "label": "Auction Location"
+    },
+    {
+      "fieldname": "auction_date",
+      "fieldtype": "Date",
+      "label": "Auction Date"
+    },
+    {
+      "fieldname": "column_break_auction",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "lane_number",
+      "fieldtype": "Data",
+      "label": "Lane Number"
+    },
+    {
+      "fieldname": "auction_id",
+      "fieldtype": "Data",
+      "label": "Auction ID"
+    },
+    {
+      "fieldname": "costs_section",
+      "fieldtype": "Section Break",
+      "label": "Costs"
+    },
+    {
+      "fieldname": "bid_amount",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Purchase Price",
+      "reqd": 1,
+      "description": "Winning bid or purchase price"
+    },
+    {
+      "fieldname": "buyer_fee",
+      "fieldtype": "Currency",
+      "label": "Buyer Fee"
+    },
+    {
+      "fieldname": "transport_cost",
+      "fieldtype": "Currency",
+      "label": "Transport Cost"
+    },
+    {
+      "fieldname": "column_break_costs",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "title_fee",
+      "fieldtype": "Currency",
+      "label": "Title Fee"
+    },
+    {
+      "fieldname": "other_fees",
+      "fieldtype": "Currency",
+      "label": "Other Fees"
+    },
+    {
+      "fieldname": "total_acquisition_cost",
+      "fieldtype": "Currency",
+      "label": "Total Acquisition Cost",
+      "read_only": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "lien_payoff_section",
+      "fieldtype": "Section Break",
+      "label": "Lien Payoff at Acquisition"
+    },
+    {
+      "fieldname": "had_existing_lien",
+      "fieldtype": "Check",
+      "label": "Had Existing Lien"
+    },
+    {
+      "fieldname": "previous_lienholder",
+      "fieldtype": "Link",
+      "label": "Previous Lienholder",
+      "options": "Lienholder",
+      "depends_on": "eval:doc.had_existing_lien"
+    },
+    {
+      "fieldname": "previous_lienholder_name",
+      "fieldtype": "Data",
+      "label": "Previous Lienholder Name",
+      "depends_on": "eval:doc.had_existing_lien"
+    },
+    {
+      "fieldname": "column_break_lien",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "lien_payoff_amount",
+      "fieldtype": "Currency",
+      "label": "Lien Payoff Amount",
+      "depends_on": "eval:doc.had_existing_lien"
+    },
+    {
+      "fieldname": "lien_payoff_date",
+      "fieldtype": "Date",
+      "label": "Lien Payoff Date",
+      "depends_on": "eval:doc.had_existing_lien"
+    },
+    {
+      "fieldname": "lien_payoff_confirmation",
+      "fieldtype": "Data",
+      "label": "Lien Payoff Confirmation",
+      "depends_on": "eval:doc.had_existing_lien"
+    },
+    {
+      "fieldname": "turnover_estimates_section",
+      "fieldtype": "Section Break",
+      "label": "Turnover Estimates"
+    },
+    {
+      "fieldname": "estimated_recon",
+      "fieldtype": "Currency",
+      "label": "Estimated Reconditioning"
+    },
+    {
+      "fieldname": "estimated_repairs",
+      "fieldtype": "Currency",
+      "label": "Estimated Repairs"
+    },
+    {
+      "fieldname": "estimated_detail",
+      "fieldtype": "Currency",
+      "label": "Estimated Detail"
+    },
+    {
+      "fieldname": "column_break_turnover",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "total_estimated_turnover",
+      "fieldtype": "Currency",
+      "label": "Total Estimated Turnover",
+      "read_only": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "documents_section",
+      "fieldtype": "Section Break",
+      "label": "Documents"
+    },
+    {
+      "fieldname": "purchase_receipt",
+      "fieldtype": "Attach",
+      "label": "Purchase Receipt"
+    },
+    {
+      "fieldname": "title_image",
+      "fieldtype": "Attach",
+      "label": "Title Image"
+    },
+    {
+      "fieldname": "notes",
+      "fieldtype": "Text",
+      "label": "Notes"
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Dealer Management",
+  "name": "Vehicle Acquisition",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales User",
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

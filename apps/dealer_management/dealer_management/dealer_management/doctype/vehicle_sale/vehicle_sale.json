@@ -1,0 +1,389 @@
+{
+  "actions": [],
+  "autoname": "format:SALE-{YYYY}-{#####}",
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "vehicle_section",
+    "vehicle",
+    "sale_date",
+    "sale_type",
+    "buyer_info_section",
+    "buyer_name",
+    "buyer_phone",
+    "buyer_email",
+    "column_break_buyer",
+    "buyer_address",
+    "lead",
+    "pricing_section",
+    "sale_price",
+    "trade_in_vehicle",
+    "trade_in_allowance",
+    "column_break_pricing",
+    "down_payment",
+    "amount_financed",
+    "fees_section",
+    "doc_fee",
+    "registration_fee",
+    "sales_tax",
+    "column_break_fees",
+    "other_fees",
+    "total_deal_amount",
+    "financing_section",
+    "payment_method",
+    "finance_company",
+    "finance_reserve",
+    "column_break_financing",
+    "interest_rate",
+    "term_months",
+    "monthly_payment",
+    "new_lienholder_section",
+    "new_lienholder",
+    "new_lienholder_name",
+    "new_lienholder_account",
+    "column_break_lienholder",
+    "title_sent_to_lienholder",
+    "title_sent_date",
+    "title_tracking",
+    "profitability_section",
+    "gross_profit",
+    "net_profit",
+    "profit_margin",
+    "documents_section",
+    "bill_of_sale",
+    "buyer_agreement",
+    "notes"
+  ],
+  "fields": [
+    {
+      "fieldname": "vehicle_section",
+      "fieldtype": "Section Break",
+      "label": "Sale Info"
+    },
+    {
+      "fieldname": "vehicle",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Vehicle",
+      "options": "Dealer Vehicle",
+      "reqd": 1
+    },
+    {
+      "fieldname": "sale_date",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Sale Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "sale_type",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Sale Type",
+      "options": "\nRetail\nWholesale\nTrade\nAuction",
+      "reqd": 1
+    },
+    {
+      "fieldname": "buyer_info_section",
+      "fieldtype": "Section Break",
+      "label": "Buyer Info"
+    },
+    {
+      "fieldname": "buyer_name",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Buyer Name",
+      "reqd": 1
+    },
+    {
+      "fieldname": "buyer_phone",
+      "fieldtype": "Data",
+      "label": "Buyer Phone"
+    },
+    {
+      "fieldname": "buyer_email",
+      "fieldtype": "Data",
+      "label": "Buyer Email",
+      "options": "Email"
+    },
+    {
+      "fieldname": "column_break_buyer",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "buyer_address",
+      "fieldtype": "Text",
+      "label": "Buyer Address"
+    },
+    {
+      "fieldname": "lead",
+      "fieldtype": "Link",
+      "label": "Lead",
+      "options": "Dealer Lead"
+    },
+    {
+      "fieldname": "pricing_section",
+      "fieldtype": "Section Break",
+      "label": "Pricing"
+    },
+    {
+      "fieldname": "sale_price",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Sale Price",
+      "reqd": 1
+    },
+    {
+      "fieldname": "trade_in_vehicle",
+      "fieldtype": "Data",
+      "label": "Trade-In Vehicle",
+      "description": "VIN of trade-in vehicle"
+    },
+    {
+      "fieldname": "trade_in_allowance",
+      "fieldtype": "Currency",
+      "label": "Trade-In Allowance"
+    },
+    {
+      "fieldname": "column_break_pricing",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "down_payment",
+      "fieldtype": "Currency",
+      "label": "Down Payment"
+    },
+    {
+      "fieldname": "amount_financed",
+      "fieldtype": "Currency",
+      "label": "Amount Financed"
+    },
+    {
+      "fieldname": "fees_section",
+      "fieldtype": "Section Break",
+      "label": "Fees & Taxes"
+    },
+    {
+      "fieldname": "doc_fee",
+      "fieldtype": "Currency",
+      "label": "Doc Fee"
+    },
+    {
+      "fieldname": "registration_fee",
+      "fieldtype": "Currency",
+      "label": "Registration Fee"
+    },
+    {
+      "fieldname": "sales_tax",
+      "fieldtype": "Currency",
+      "label": "Sales Tax"
+    },
+    {
+      "fieldname": "column_break_fees",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "other_fees",
+      "fieldtype": "Currency",
+      "label": "Other Fees"
+    },
+    {
+      "fieldname": "total_deal_amount",
+      "fieldtype": "Currency",
+      "label": "Total Deal Amount",
+      "read_only": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "financing_section",
+      "fieldtype": "Section Break",
+      "label": "Financing"
+    },
+    {
+      "fieldname": "payment_method",
+      "fieldtype": "Select",
+      "label": "Payment Method",
+      "options": "\nCash\nDealer Financing\nOutside Financing\nBHPH",
+      "in_standard_filter": 1
+    },
+    {
+      "fieldname": "finance_company",
+      "fieldtype": "Data",
+      "label": "Finance Company",
+      "depends_on": "eval:['Dealer Financing', 'Outside Financing', 'BHPH'].includes(doc.payment_method)"
+    },
+    {
+      "fieldname": "finance_reserve",
+      "fieldtype": "Currency",
+      "label": "Finance Reserve",
+      "depends_on": "eval:['Dealer Financing', 'Outside Financing', 'BHPH'].includes(doc.payment_method)"
+    },
+    {
+      "fieldname": "column_break_financing",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "interest_rate",
+      "fieldtype": "Float",
+      "label": "Interest Rate (%)",
+      "depends_on": "eval:['Dealer Financing', 'Outside Financing', 'BHPH'].includes(doc.payment_method)"
+    },
+    {
+      "fieldname": "term_months",
+      "fieldtype": "Int",
+      "label": "Term (Months)",
+      "depends_on": "eval:['Dealer Financing', 'Outside Financing', 'BHPH'].includes(doc.payment_method)"
+    },
+    {
+      "fieldname": "monthly_payment",
+      "fieldtype": "Currency",
+      "label": "Monthly Payment",
+      "depends_on": "eval:['Dealer Financing', 'Outside Financing', 'BHPH'].includes(doc.payment_method)"
+    },
+    {
+      "fieldname": "new_lienholder_section",
+      "fieldtype": "Section Break",
+      "label": "New Lienholder (Buyer's Financing)",
+      "depends_on": "eval:['Dealer Financing', 'Outside Financing', 'BHPH'].includes(doc.payment_method)"
+    },
+    {
+      "fieldname": "new_lienholder",
+      "fieldtype": "Link",
+      "label": "New Lienholder",
+      "options": "Lienholder"
+    },
+    {
+      "fieldname": "new_lienholder_name",
+      "fieldtype": "Data",
+      "label": "New Lienholder Name",
+      "description": "If not in lienholder list"
+    },
+    {
+      "fieldname": "new_lienholder_account",
+      "fieldtype": "Data",
+      "label": "New Lienholder Account"
+    },
+    {
+      "fieldname": "column_break_lienholder",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "title_sent_to_lienholder",
+      "fieldtype": "Check",
+      "label": "Title Sent to Lienholder"
+    },
+    {
+      "fieldname": "title_sent_date",
+      "fieldtype": "Date",
+      "label": "Title Sent Date",
+      "depends_on": "eval:doc.title_sent_to_lienholder"
+    },
+    {
+      "fieldname": "title_tracking",
+      "fieldtype": "Data",
+      "label": "Title Tracking Number",
+      "depends_on": "eval:doc.title_sent_to_lienholder"
+    },
+    {
+      "fieldname": "profitability_section",
+      "fieldtype": "Section Break",
+      "label": "Profitability"
+    },
+    {
+      "fieldname": "gross_profit",
+      "fieldtype": "Currency",
+      "label": "Gross Profit",
+      "read_only": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "net_profit",
+      "fieldtype": "Currency",
+      "label": "Net Profit",
+      "read_only": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "profit_margin",
+      "fieldtype": "Percent",
+      "label": "Profit Margin",
+      "read_only": 1,
+      "bold": 1
+    },
+    {
+      "fieldname": "documents_section",
+      "fieldtype": "Section Break",
+      "label": "Documents"
+    },
+    {
+      "fieldname": "bill_of_sale",
+      "fieldtype": "Attach",
+      "label": "Bill of Sale"
+    },
+    {
+      "fieldname": "buyer_agreement",
+      "fieldtype": "Attach",
+      "label": "Buyer Agreement"
+    },
+    {
+      "fieldname": "notes",
+      "fieldtype": "Text",
+      "label": "Notes"
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "is_submittable": 1,
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Dealer Management",
+  "name": "Vehicle Sale",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "submit": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales Manager",
+      "share": 1,
+      "submit": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales User",
+      "submit": 1,
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

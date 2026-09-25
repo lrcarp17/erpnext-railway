@@ -1,0 +1,55 @@
+{
+ "actions": [],
+ "creation": "2026-09-25 00:00:00.000000",
+ "doctype": "DocType",
+ "engine": "InnoDB",
+ "field_order": [
+  "anthropic_api_key",
+  "model",
+  "column_break_1",
+  "help_html"
+ ],
+ "fields": [
+  {
+   "description": "API key from console.anthropic.com. Falls back to the anthropic_api_key site config value or the ANTHROPIC_API_KEY environment variable when blank.",
+   "fieldname": "anthropic_api_key",
+   "fieldtype": "Password",
+   "label": "Anthropic API Key"
+  },
+  {
+   "default": "claude-opus-5",
+   "description": "Claude model used to read uploaded documents.",
+   "fieldname": "model",
+   "fieldtype": "Data",
+   "label": "Model"
+  },
+  {
+   "fieldname": "column_break_1",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "help_html",
+   "fieldtype": "HTML",
+   "options": "<p>Upload a <b>title</b>, <b>bill of sale</b>, or <b>listing</b> from the Dealer Vehicle list (<i>Import from Document</i>) or from a vehicle (<i>Update from Document</i>). The document is read by Claude, matched to an existing vehicle by VIN, and you review every change before it is saved.</p>"
+  }
+ ],
+ "issingle": 1,
+ "links": [],
+ "modified": "2026-09-25 00:00:00.000000",
+ "modified_by": "Administrator",
+ "module": "Dealer Management",
+ "name": "Document Import Settings",
+ "owner": "Administrator",
+ "permissions": [
+  {
+   "create": 1,
+   "read": 1,
+   "role": "System Manager",
+   "write": 1
+  }
+ ],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": [],
+ "track_changes": 1
+}

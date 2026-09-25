@@ -1,0 +1,291 @@
+{
+  "actions": [],
+  "autoname": "format:COND-{YYYY}-{#####}",
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "vehicle_section",
+    "vehicle",
+    "inspection_date",
+    "inspected_by",
+    "ratings_section",
+    "exterior_rating",
+    "interior_rating",
+    "mechanical_rating",
+    "column_break_ratings",
+    "tire_rating",
+    "overall_rating",
+    "details_section",
+    "exterior_notes",
+    "interior_notes",
+    "column_break_details",
+    "mechanical_notes",
+    "tire_details",
+    "damage_section",
+    "has_damage",
+    "damage_description",
+    "damage_photos",
+    "inspection_items_section",
+    "ac_works",
+    "heat_works",
+    "all_power_windows",
+    "all_power_locks",
+    "column_break_inspection",
+    "radio_works",
+    "backup_camera",
+    "check_engine_light",
+    "other_warning_lights",
+    "column_break_smog",
+    "smog_status",
+    "service_history_section",
+    "service_records_available",
+    "carfax_report",
+    "maintenance_notes"
+  ],
+  "fields": [
+    {
+      "fieldname": "vehicle_section",
+      "fieldtype": "Section Break",
+      "label": "Inspection Info"
+    },
+    {
+      "fieldname": "vehicle",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Vehicle",
+      "options": "Dealer Vehicle",
+      "reqd": 1
+    },
+    {
+      "fieldname": "inspection_date",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Inspection Date",
+      "reqd": 1
+    },
+    {
+      "fieldname": "inspected_by",
+      "fieldtype": "Data",
+      "label": "Inspected By"
+    },
+    {
+      "fieldname": "ratings_section",
+      "fieldtype": "Section Break",
+      "label": "Condition Ratings (1-5)"
+    },
+    {
+      "fieldname": "exterior_rating",
+      "fieldtype": "Rating",
+      "in_list_view": 1,
+      "label": "Exterior Rating"
+    },
+    {
+      "fieldname": "interior_rating",
+      "fieldtype": "Rating",
+      "label": "Interior Rating"
+    },
+    {
+      "fieldname": "mechanical_rating",
+      "fieldtype": "Rating",
+      "label": "Mechanical Rating"
+    },
+    {
+      "fieldname": "column_break_ratings",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "tire_rating",
+      "fieldtype": "Rating",
+      "label": "Tire Rating"
+    },
+    {
+      "fieldname": "overall_rating",
+      "fieldtype": "Rating",
+      "label": "Overall Rating",
+      "read_only": 1,
+      "description": "Calculated average of all ratings",
+      "bold": 1
+    },
+    {
+      "fieldname": "details_section",
+      "fieldtype": "Section Break",
+      "label": "Condition Details"
+    },
+    {
+      "fieldname": "exterior_notes",
+      "fieldtype": "Text",
+      "label": "Exterior Notes"
+    },
+    {
+      "fieldname": "interior_notes",
+      "fieldtype": "Text",
+      "label": "Interior Notes"
+    },
+    {
+      "fieldname": "column_break_details",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "mechanical_notes",
+      "fieldtype": "Text",
+      "label": "Mechanical Notes"
+    },
+    {
+      "fieldname": "tire_details",
+      "fieldtype": "Data",
+      "label": "Tire Details",
+      "description": "Tread depth, brand, size, etc."
+    },
+    {
+      "fieldname": "damage_section",
+      "fieldtype": "Section Break",
+      "label": "Damage"
+    },
+    {
+      "fieldname": "has_damage",
+      "fieldtype": "Check",
+      "label": "Has Damage"
+    },
+    {
+      "fieldname": "damage_description",
+      "fieldtype": "Text",
+      "label": "Damage Description",
+      "depends_on": "eval:doc.has_damage"
+    },
+    {
+      "fieldname": "damage_photos",
+      "fieldtype": "Attach",
+      "label": "Damage Photos",
+      "depends_on": "eval:doc.has_damage"
+    },
+    {
+      "fieldname": "inspection_items_section",
+      "fieldtype": "Section Break",
+      "label": "Inspection Items"
+    },
+    {
+      "fieldname": "ac_works",
+      "fieldtype": "Check",
+      "label": "A/C Works"
+    },
+    {
+      "fieldname": "heat_works",
+      "fieldtype": "Check",
+      "label": "Heat Works"
+    },
+    {
+      "fieldname": "all_power_windows",
+      "fieldtype": "Check",
+      "label": "All Power Windows Work"
+    },
+    {
+      "fieldname": "all_power_locks",
+      "fieldtype": "Check",
+      "label": "All Power Locks Work"
+    },
+    {
+      "fieldname": "column_break_inspection",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "radio_works",
+      "fieldtype": "Check",
+      "label": "Radio/Infotainment Works"
+    },
+    {
+      "fieldname": "backup_camera",
+      "fieldtype": "Check",
+      "label": "Backup Camera Works"
+    },
+    {
+      "fieldname": "check_engine_light",
+      "fieldtype": "Check",
+      "label": "Check Engine Light On"
+    },
+    {
+      "fieldname": "other_warning_lights",
+      "fieldtype": "Data",
+      "label": "Other Warning Lights"
+    },
+    {
+      "fieldname": "column_break_smog",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "smog_status",
+      "fieldtype": "Select",
+      "label": "Smog Status",
+      "options": "\nPassed\nFailed\nExempt\nPending"
+    },
+    {
+      "fieldname": "service_history_section",
+      "fieldtype": "Section Break",
+      "label": "Service History"
+    },
+    {
+      "fieldname": "service_records_available",
+      "fieldtype": "Check",
+      "label": "Service Records Available"
+    },
+    {
+      "fieldname": "carfax_report",
+      "fieldtype": "Attach",
+      "label": "Carfax Report"
+    },
+    {
+      "fieldname": "maintenance_notes",
+      "fieldtype": "Text",
+      "label": "Maintenance Notes"
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Dealer Management",
+  "name": "Vehicle Condition",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales User",
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}
