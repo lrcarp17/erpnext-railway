@@ -1,0 +1,72 @@
+[
+  {
+    "doctype": "Acquisition Source",
+    "name": "Manheim",
+    "source_name": "Manheim",
+    "source_type": "Auction",
+    "website": "https://www.manheim.com",
+    "notes": "Largest wholesale auto auction company in North America",
+    "is_active": 1
+  },
+  {
+    "doctype": "Acquisition Source",
+    "name": "ADESA",
+    "source_name": "ADESA",
+    "source_type": "Auction",
+    "website": "https://www.adesa.com",
+    "notes": "One of the largest wholesale vehicle auction networks",
+    "is_active": 1
+  },
+  {
+    "doctype": "Acquisition Source",
+    "name": "Copart",
+    "source_name": "Copart",
+    "source_type": "Auction",
+    "website": "https://www.copart.com",
+    "notes": "Online vehicle auction with salvage and clean title vehicles",
+    "is_active": 1
+  },
+  {
+    "doctype": "Acquisition Source",
+    "name": "IAA",
+    "source_name": "IAA",
+    "source_type": "Auction",
+    "website": "https://www.iaai.com",
+    "notes": "Insurance Auto Auctions - salvage and total loss vehicle auctions",
+    "is_active": 1
+  },
+  {
+    "doctype": "Acquisition Source",
+    "name": "ACV Auctions",
+    "source_name": "ACV Auctions",
+    "source_type": "Auction",
+    "website": "https://www.acvauctions.com",
+    "notes": "Digital wholesale auto auction platform",
+    "is_active": 1
+  },
+  {
+    "doctype": "Acquisition Source",
+    "name": "CarMax Wholesale",
+    "source_name": "CarMax Wholesale",
+    "source_type": "Wholesaler",
+    "website": "https://www.carmaxauctions.com",
+    "notes": "CarMax dealer-only wholesale auctions",
+    "is_active": 1
+  },
+  {
+    "doctype": "Acquisition Source",
+    "name": "Trade-In",
+    "source_name": "Trade-In",
+    "source_type": "Trade-In",
+    "notes": "Vehicle traded in by customer during purchase transaction",
+    "is_active": 1
+  },
+  {
+    "doctype": "Acquisition Source",
+    "name": "Private Purchase",
+    "source_name": "Private Purchase",
+    "source_type": "Private",
+    "notes": "Vehicle purchased directly from a private party",
+    "is_active": 1
+  }
+]

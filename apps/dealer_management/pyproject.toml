@@ -1,0 +1,19 @@
+[project]
+name = "dealer_management"
+authors = [
+    { name = "Your Company", email = "info@yourcompany.com"}
+]
+description = "Vehicle inventory and sales management for independent auto dealers"
+requires-python = ">=3.10"
+readme = "README.md"
+dynamic = ["version"]
+dependencies = [
+    "anthropic>=1.8,<2",
+]
+
+[build-system]
+requires = ["flit_core >=3.4,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.bench.dev-dependencies]
+frappe = "https://github.com/frappe/frappe"

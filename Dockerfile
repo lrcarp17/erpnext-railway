@@ -1,5 +1,6 @@
-# Custom image: Frappe version-16 + apps from apps.json,
-# then the Railway one-service production layout (nginx, redis, entrypoint).
+# Custom image: Frappe version-16 + apps from apps.json + apps in this repo's apps/
+# folder (Dealerbase), then the Railway one-service production layout (nginx, redis,
+# entrypoint).
 # For private repos, set GITHUB_TOKEN build arg and use ${GITHUB_TOKEN} in apps.json URLs.
 ARG FRAPPE_BRANCH=version-16
 ARG FRAPPE_IMAGE_PREFIX=frappe
@@ -28,8 +29,21 @@ RUN echo "railway: fetching apps (APPS_REVISION=${APPS_REVISION:-unset})" \
       --skip-redis-config-generation \
       --verbose \
       /home/frappe/frappe-bench \
-  && cd /home/frappe/frappe-bench \
-  && echo "{}" > sites/common_site_config.json \
+  && echo "{}" > /home/frappe/frappe-bench/sites/common_site_config.json
+
+# Apps kept in this repo (apps/<name>/). They are copied after the step above, so a
+# change to them rebuilds only from here, with no APPS_REVISION needed. bench get-app
+# installs from a git repo, so each copy becomes a one-commit repo first; that gives it
+# the same pip install, apps.txt entry and asset build as an app cloned from GitHub.
+COPY --chown=frappe:frappe apps /opt/frappe/local-apps
+RUN cd /home/frappe/frappe-bench \
+  && for app in /opt/frappe/local-apps/*/; do \
+       git -C "$app" init -q -b main \
+       && git -C "$app" add -A \
+       && git -C "$app" -c user.name=build -c user.email=build@localhost commit -q -m build \
+       && bench get-app "${app%/}" || exit 1; \
+     done \
+  && rm -rf /opt/frappe/local-apps \
   && find apps -mindepth 1 -path "*/.git" | xargs rm -fr
 
 FROM ${FRAPPE_IMAGE_PREFIX}/base:${FRAPPE_BRANCH}

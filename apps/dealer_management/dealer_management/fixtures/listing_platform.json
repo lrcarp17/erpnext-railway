@@ -1,0 +1,73 @@
+[
+  {
+    "doctype": "Listing Platform",
+    "name": "Facebook Marketplace",
+    "platform_name": "Facebook Marketplace",
+    "platform_type": "Social",
+    "cost_type": "Free",
+    "platform_url": "https://www.facebook.com/marketplace",
+    "is_active": 1
+  },
+  {
+    "doctype": "Listing Platform",
+    "name": "Craigslist",
+    "platform_name": "Craigslist",
+    "platform_type": "Classified",
+    "cost_type": "Per Listing",
+    "platform_url": "https://www.craigslist.org",
+    "is_active": 1
+  },
+  {
+    "doctype": "Listing Platform",
+    "name": "CarGurus",
+    "platform_name": "CarGurus",
+    "platform_type": "Marketplace",
+    "cost_type": "Subscription",
+    "platform_url": "https://www.cargurus.com",
+    "is_active": 1
+  },
+  {
+    "doctype": "Listing Platform",
+    "name": "Cars.com",
+    "platform_name": "Cars.com",
+    "platform_type": "Marketplace",
+    "cost_type": "Subscription",
+    "platform_url": "https://www.cars.com",
+    "is_active": 1
+  },
+  {
+    "doctype": "Listing Platform",
+    "name": "Autotrader",
+    "platform_name": "Autotrader",
+    "platform_type": "Marketplace",
+    "cost_type": "Subscription",
+    "platform_url": "https://www.autotrader.com",
+    "is_active": 1
+  },
+  {
+    "doctype": "Listing Platform",
+    "name": "OfferUp",
+    "platform_name": "OfferUp",
+    "platform_type": "Marketplace",
+    "cost_type": "Free",
+    "platform_url": "https://www.offerup.com",
+    "is_active": 1
+  },
+  {
+    "doctype": "Listing Platform",
+    "name": "eBay Motors",
+    "platform_name": "eBay Motors",
+    "platform_type": "Marketplace",
+    "cost_type": "Per Listing",
+    "platform_url": "https://www.ebay.com/motors",
+    "is_active": 1
+  },
+  {
+    "doctype": "Listing Platform",
+    "name": "Dealer Website",
+    "platform_name": "Dealer Website",
+    "platform_type": "Dealer Site",
+    "cost_type": "Free",
+    "is_active": 1
+  }
+]

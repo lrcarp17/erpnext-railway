@@ -1,0 +1,73 @@
+{
+    "actions": [],
+    "creation": "2026-09-24 00:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "photo",
+        "photo_type",
+        "caption",
+        "column_break_1",
+        "is_primary",
+        "sequence",
+        "taken_date"
+    ],
+    "fields": [
+        {
+            "fieldname": "photo",
+            "fieldtype": "Attach Image",
+            "in_list_view": 1,
+            "label": "Photo",
+            "reqd": 1
+        },
+        {
+            "fieldname": "photo_type",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "label": "Photo Type",
+            "options": "Exterior\nInterior\nEngine\nDamage\nDocument\nOther"
+        },
+        {
+            "fieldname": "caption",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Caption"
+        },
+        {
+            "fieldname": "column_break_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "is_primary",
+            "fieldtype": "Check",
+            "in_list_view": 1,
+            "label": "Is Primary"
+        },
+        {
+            "default": "0",
+            "fieldname": "sequence",
+            "fieldtype": "Int",
+            "label": "Sequence"
+        },
+        {
+            "fieldname": "taken_date",
+            "fieldtype": "Date",
+            "label": "Taken Date"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "istable": 1,
+    "links": [],
+    "modified": "2026-09-24 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Dealer Management",
+    "name": "Vehicle Photo",
+    "owner": "Administrator",
+    "permissions": [],
+    "sort_field": "sequence",
+    "sort_order": "ASC",
+    "states": [],
+    "track_changes": 0
+}

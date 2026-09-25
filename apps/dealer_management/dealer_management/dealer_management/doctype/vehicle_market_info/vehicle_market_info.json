@@ -1,0 +1,273 @@
+{
+  "actions": [],
+  "autoname": "format:MKT-{YYYY}-{#####}",
+  "creation": "2024-01-01 00:00:00.000000",
+  "doctype": "DocType",
+  "engine": "InnoDB",
+  "field_order": [
+    "vehicle_section",
+    "vehicle",
+    "info_date",
+    "market_values_section",
+    "retail_value",
+    "wholesale_value",
+    "trade_in_value",
+    "column_break_market",
+    "private_party_value",
+    "auction_value",
+    "data_sources_section",
+    "kbb_value",
+    "nada_value",
+    "column_break_sources",
+    "blackbook_value",
+    "mmr_value",
+    "comparables_section",
+    "comp_1_link",
+    "comp_1_price",
+    "comp_1_notes",
+    "column_break_comp1",
+    "comp_2_link",
+    "comp_2_price",
+    "comp_2_notes",
+    "column_break_comp2",
+    "comp_3_link",
+    "comp_3_price",
+    "comp_3_notes",
+    "market_analysis_section",
+    "market_trend",
+    "days_to_sell_estimate",
+    "column_break_analysis",
+    "recommended_price",
+    "notes"
+  ],
+  "fields": [
+    {
+      "fieldname": "vehicle_section",
+      "fieldtype": "Section Break",
+      "label": "Vehicle Info"
+    },
+    {
+      "fieldname": "vehicle",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "in_standard_filter": 1,
+      "label": "Vehicle",
+      "options": "Dealer Vehicle",
+      "reqd": 1
+    },
+    {
+      "fieldname": "info_date",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Info Date",
+      "reqd": 1,
+      "description": "Date market info was gathered"
+    },
+    {
+      "fieldname": "market_values_section",
+      "fieldtype": "Section Break",
+      "label": "Market Values"
+    },
+    {
+      "fieldname": "retail_value",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Retail Value"
+    },
+    {
+      "fieldname": "wholesale_value",
+      "fieldtype": "Currency",
+      "label": "Wholesale Value"
+    },
+    {
+      "fieldname": "trade_in_value",
+      "fieldtype": "Currency",
+      "label": "Trade-In Value"
+    },
+    {
+      "fieldname": "column_break_market",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "private_party_value",
+      "fieldtype": "Currency",
+      "label": "Private Party Value"
+    },
+    {
+      "fieldname": "auction_value",
+      "fieldtype": "Currency",
+      "label": "Auction Value"
+    },
+    {
+      "fieldname": "data_sources_section",
+      "fieldtype": "Section Break",
+      "label": "Data Sources"
+    },
+    {
+      "fieldname": "kbb_value",
+      "fieldtype": "Currency",
+      "label": "KBB Value",
+      "description": "Kelley Blue Book"
+    },
+    {
+      "fieldname": "nada_value",
+      "fieldtype": "Currency",
+      "label": "NADA Value"
+    },
+    {
+      "fieldname": "column_break_sources",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "blackbook_value",
+      "fieldtype": "Currency",
+      "label": "Black Book Value"
+    },
+    {
+      "fieldname": "mmr_value",
+      "fieldtype": "Currency",
+      "label": "MMR Value",
+      "description": "Manheim Market Report"
+    },
+    {
+      "fieldname": "comparables_section",
+      "fieldtype": "Section Break",
+      "label": "Comparables"
+    },
+    {
+      "fieldname": "comp_1_link",
+      "fieldtype": "Data",
+      "label": "Comp 1 Link",
+      "description": "URL to comparable listing"
+    },
+    {
+      "fieldname": "comp_1_price",
+      "fieldtype": "Currency",
+      "label": "Comp 1 Price"
+    },
+    {
+      "fieldname": "comp_1_notes",
+      "fieldtype": "Data",
+      "label": "Comp 1 Notes",
+      "description": "Mileage, condition, etc."
+    },
+    {
+      "fieldname": "column_break_comp1",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "comp_2_link",
+      "fieldtype": "Data",
+      "label": "Comp 2 Link"
+    },
+    {
+      "fieldname": "comp_2_price",
+      "fieldtype": "Currency",
+      "label": "Comp 2 Price"
+    },
+    {
+      "fieldname": "comp_2_notes",
+      "fieldtype": "Data",
+      "label": "Comp 2 Notes"
+    },
+    {
+      "fieldname": "column_break_comp2",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "comp_3_link",
+      "fieldtype": "Data",
+      "label": "Comp 3 Link"
+    },
+    {
+      "fieldname": "comp_3_price",
+      "fieldtype": "Currency",
+      "label": "Comp 3 Price"
+    },
+    {
+      "fieldname": "comp_3_notes",
+      "fieldtype": "Data",
+      "label": "Comp 3 Notes"
+    },
+    {
+      "fieldname": "market_analysis_section",
+      "fieldtype": "Section Break",
+      "label": "Market Analysis"
+    },
+    {
+      "fieldname": "market_trend",
+      "fieldtype": "Select",
+      "label": "Market Trend",
+      "options": "\nRising\nStable\nDeclining"
+    },
+    {
+      "fieldname": "days_to_sell_estimate",
+      "fieldtype": "Int",
+      "label": "Days to Sell Estimate"
+    },
+    {
+      "fieldname": "column_break_analysis",
+      "fieldtype": "Column Break"
+    },
+    {
+      "fieldname": "recommended_price",
+      "fieldtype": "Currency",
+      "in_list_view": 1,
+      "label": "Recommended Price",
+      "bold": 1
+    },
+    {
+      "fieldname": "notes",
+      "fieldtype": "Text",
+      "label": "Notes"
+    }
+  ],
+  "index_web_pages_for_search": 1,
+  "links": [],
+  "modified": "2024-01-01 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "Dealer Management",
+  "name": "Vehicle Market Info",
+  "naming_rule": "Expression",
+  "owner": "Administrator",
+  "permissions": [
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "System Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "delete": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales Manager",
+      "share": 1,
+      "write": 1
+    },
+    {
+      "create": 1,
+      "email": 1,
+      "export": 1,
+      "print": 1,
+      "read": 1,
+      "report": 1,
+      "role": "Sales User",
+      "write": 1
+    }
+  ],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

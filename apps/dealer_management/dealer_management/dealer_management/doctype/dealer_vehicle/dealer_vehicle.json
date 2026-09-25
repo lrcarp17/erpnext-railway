@@ -1,0 +1,564 @@
+{
+    "actions": [],
+    "allow_rename": 0,
+    "autoname": "field:vehicle_id",
+    "creation": "2026-09-24 00:00:00.000000",
+    "doctype": "DocType",
+    "editable_grid": 1,
+    "engine": "InnoDB",
+    "field_order": [
+        "basic_info_section",
+        "vehicle_id",
+        "vin",
+        "stock_number",
+        "column_break_basic",
+        "status",
+        "vehicle_details_section",
+        "year",
+        "make",
+        "model",
+        "trim",
+        "column_break_details_1",
+        "body_style",
+        "exterior_color",
+        "interior_color",
+        "column_break_details_2",
+        "mileage_in",
+        "mileage_current",
+        "doors",
+        "mechanical_section",
+        "transmission",
+        "drivetrain",
+        "column_break_mechanical",
+        "fuel_type",
+        "engine",
+        "title_section",
+        "title_status",
+        "title_state",
+        "title_number",
+        "column_break_title_1",
+        "title_copy",
+        "title_received",
+        "title_received_date",
+        "title_location",
+        "lien_section",
+        "has_lien",
+        "lienholder",
+        "lienholder_name",
+        "lienholder_account",
+        "column_break_lien",
+        "lien_payoff_amount",
+        "lien_payoff_good_through",
+        "lien_paid_date",
+        "lien_release_received",
+        "lien_release_document",
+        "pricing_section",
+        "asking_price",
+        "floor_price",
+        "book_value",
+        "column_break_pricing",
+        "total_investment",
+        "potential_profit",
+        "dates_section",
+        "acquisition_date",
+        "lot_date",
+        "lot_expiration_date",
+        "column_break_dates",
+        "sale_date",
+        "days_on_lot",
+        "links_section",
+        "acquisition",
+        "condition",
+        "column_break_links",
+        "market_info",
+        "sale",
+        "photos_section",
+        "photos",
+        "expenses_section",
+        "expenses",
+        "listings_section",
+        "listings",
+        "notes_section",
+        "notes",
+        "description_section",
+        "features",
+        "description"
+    ],
+    "fields": [
+        {
+            "fieldname": "basic_info_section",
+            "fieldtype": "Section Break",
+            "label": "Basic Info"
+        },
+        {
+            "fieldname": "vehicle_id",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "label": "Vehicle ID",
+            "read_only": 1,
+            "unique": 1
+        },
+        {
+            "fieldname": "vin",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "VIN",
+            "reqd": 1,
+            "unique": 1
+        },
+        {
+            "fieldname": "stock_number",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Stock Number"
+        },
+        {
+            "fieldname": "column_break_basic",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "Available",
+            "fieldname": "status",
+            "fieldtype": "Select",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Status",
+            "options": "Available\nIn Recon\nFrontline\nPending Sale\nSold\nWholesale\nProblem",
+            "reqd": 1
+        },
+        {
+            "fieldname": "vehicle_details_section",
+            "fieldtype": "Section Break",
+            "label": "Vehicle Details"
+        },
+        {
+            "fieldname": "year",
+            "fieldtype": "Int",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Year",
+            "reqd": 1
+        },
+        {
+            "fieldname": "make",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Make",
+            "reqd": 1
+        },
+        {
+            "fieldname": "model",
+            "fieldtype": "Data",
+            "in_list_view": 1,
+            "in_standard_filter": 1,
+            "label": "Model",
+            "reqd": 1
+        },
+        {
+            "fieldname": "trim",
+            "fieldtype": "Data",
+            "label": "Trim"
+        },
+        {
+            "fieldname": "column_break_details_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "body_style",
+            "fieldtype": "Select",
+            "label": "Body Style",
+            "options": "\nSedan\nSUV\nTruck\nVan\nCoupe\nConvertible\nWagon\nHatchback"
+        },
+        {
+            "fieldname": "exterior_color",
+            "fieldtype": "Data",
+            "label": "Exterior Color"
+        },
+        {
+            "fieldname": "interior_color",
+            "fieldtype": "Data",
+            "label": "Interior Color"
+        },
+        {
+            "fieldname": "column_break_details_2",
+            "fieldtype": "Column Break"
+        },
+        {
+            "default": "0",
+            "fieldname": "mileage_in",
+            "fieldtype": "Int",
+            "label": "Mileage In"
+        },
+        {
+            "default": "0",
+            "fieldname": "mileage_current",
+            "fieldtype": "Int",
+            "label": "Mileage Current"
+        },
+        {
+            "fieldname": "doors",
+            "fieldtype": "Int",
+            "label": "Doors"
+        },
+        {
+            "fieldname": "mechanical_section",
+            "fieldtype": "Section Break",
+            "label": "Mechanical"
+        },
+        {
+            "fieldname": "transmission",
+            "fieldtype": "Select",
+            "label": "Transmission",
+            "options": "\nAutomatic\nManual\nCVT"
+        },
+        {
+            "fieldname": "drivetrain",
+            "fieldtype": "Select",
+            "label": "Drivetrain",
+            "options": "\nFWD\nRWD\nAWD\n4WD"
+        },
+        {
+            "fieldname": "column_break_mechanical",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "fuel_type",
+            "fieldtype": "Select",
+            "label": "Fuel Type",
+            "options": "\nGasoline\nDiesel\nHybrid\nElectric\nPlug-in Hybrid"
+        },
+        {
+            "fieldname": "engine",
+            "fieldtype": "Data",
+            "label": "Engine"
+        },
+        {
+            "fieldname": "title_section",
+            "fieldtype": "Section Break",
+            "label": "Title Information"
+        },
+        {
+            "default": "Clean",
+            "fieldname": "title_status",
+            "fieldtype": "Select",
+            "label": "Title Status",
+            "options": "Clean\nSalvage\nRebuilt\nLemon\nFlood"
+        },
+        {
+            "fieldname": "title_state",
+            "fieldtype": "Data",
+            "label": "Title State"
+        },
+        {
+            "fieldname": "title_number",
+            "fieldtype": "Data",
+            "label": "Title Number"
+        },
+        {
+            "fieldname": "column_break_title_1",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "title_copy",
+            "fieldtype": "Attach",
+            "label": "Title Copy"
+        },
+        {
+            "default": "0",
+            "fieldname": "title_received",
+            "fieldtype": "Check",
+            "label": "Title Received"
+        },
+        {
+            "depends_on": "eval:doc.title_received",
+            "fieldname": "title_received_date",
+            "fieldtype": "Date",
+            "label": "Title Received Date"
+        },
+        {
+            "fieldname": "title_location",
+            "fieldtype": "Select",
+            "label": "Title Location",
+            "options": "\nIn Office\nWith Lienholder\nAt DMV\nSent to Buyer\nSent to New Lienholder"
+        },
+        {
+            "fieldname": "lien_section",
+            "fieldtype": "Section Break",
+            "label": "Lien Information"
+        },
+        {
+            "default": "0",
+            "fieldname": "has_lien",
+            "fieldtype": "Check",
+            "label": "Has Lien"
+        },
+        {
+            "depends_on": "eval:doc.has_lien",
+            "fieldname": "lienholder",
+            "fieldtype": "Link",
+            "label": "Lienholder",
+            "options": "Lienholder"
+        },
+        {
+            "depends_on": "eval:doc.has_lien",
+            "fieldname": "lienholder_name",
+            "fieldtype": "Data",
+            "label": "Lienholder Name"
+        },
+        {
+            "depends_on": "eval:doc.has_lien",
+            "fieldname": "lienholder_account",
+            "fieldtype": "Data",
+            "label": "Lienholder Account"
+        },
+        {
+            "fieldname": "column_break_lien",
+            "fieldtype": "Column Break"
+        },
+        {
+            "depends_on": "eval:doc.has_lien",
+            "fieldname": "lien_payoff_amount",
+            "fieldtype": "Currency",
+            "label": "Lien Payoff Amount"
+        },
+        {
+            "depends_on": "eval:doc.has_lien",
+            "fieldname": "lien_payoff_good_through",
+            "fieldtype": "Date",
+            "label": "Lien Payoff Good Through"
+        },
+        {
+            "depends_on": "eval:doc.has_lien",
+            "fieldname": "lien_paid_date",
+            "fieldtype": "Date",
+            "label": "Lien Paid Date"
+        },
+        {
+            "depends_on": "eval:doc.has_lien",
+            "default": "0",
+            "fieldname": "lien_release_received",
+            "fieldtype": "Check",
+            "label": "Lien Release Received"
+        },
+        {
+            "depends_on": "eval:doc.has_lien && doc.lien_release_received",
+            "fieldname": "lien_release_document",
+            "fieldtype": "Attach",
+            "label": "Lien Release Document"
+        },
+        {
+            "fieldname": "pricing_section",
+            "fieldtype": "Section Break",
+            "label": "Pricing"
+        },
+        {
+            "fieldname": "asking_price",
+            "fieldtype": "Currency",
+            "label": "Asking Price"
+        },
+        {
+            "fieldname": "floor_price",
+            "fieldtype": "Currency",
+            "label": "Floor Price"
+        },
+        {
+            "fieldname": "book_value",
+            "fieldtype": "Currency",
+            "label": "Book Value"
+        },
+        {
+            "fieldname": "column_break_pricing",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "total_investment",
+            "fieldtype": "Currency",
+            "label": "Total Investment",
+            "read_only": 1
+        },
+        {
+            "fieldname": "potential_profit",
+            "fieldtype": "Currency",
+            "label": "Potential Profit",
+            "read_only": 1
+        },
+        {
+            "fieldname": "dates_section",
+            "fieldtype": "Section Break",
+            "label": "Dates"
+        },
+        {
+            "fieldname": "acquisition_date",
+            "fieldtype": "Date",
+            "label": "Acquisition Date"
+        },
+        {
+            "fieldname": "lot_date",
+            "fieldtype": "Date",
+            "label": "Lot Date"
+        },
+        {
+            "fieldname": "lot_expiration_date",
+            "fieldtype": "Date",
+            "label": "Lot Expiration Date"
+        },
+        {
+            "fieldname": "column_break_dates",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "sale_date",
+            "fieldtype": "Date",
+            "label": "Sale Date",
+            "read_only": 1
+        },
+        {
+            "default": "0",
+            "fieldname": "days_on_lot",
+            "fieldtype": "Int",
+            "label": "Days on Lot",
+            "read_only": 1
+        },
+        {
+            "fieldname": "links_section",
+            "fieldtype": "Section Break",
+            "label": "Related Documents"
+        },
+        {
+            "fieldname": "acquisition",
+            "fieldtype": "Link",
+            "label": "Acquisition",
+            "options": "Vehicle Acquisition"
+        },
+        {
+            "fieldname": "condition",
+            "fieldtype": "Link",
+            "label": "Condition",
+            "options": "Vehicle Condition"
+        },
+        {
+            "fieldname": "column_break_links",
+            "fieldtype": "Column Break"
+        },
+        {
+            "fieldname": "market_info",
+            "fieldtype": "Link",
+            "label": "Market Info",
+            "options": "Vehicle Market Info"
+        },
+        {
+            "fieldname": "sale",
+            "fieldtype": "Link",
+            "label": "Sale",
+            "options": "Vehicle Sale"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "photos_section",
+            "fieldtype": "Section Break",
+            "label": "Photos"
+        },
+        {
+            "fieldname": "photos",
+            "fieldtype": "Table",
+            "label": "Photos",
+            "options": "Vehicle Photo"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "expenses_section",
+            "fieldtype": "Section Break",
+            "label": "Expenses"
+        },
+        {
+            "fieldname": "expenses",
+            "fieldtype": "Table",
+            "label": "Expenses",
+            "options": "Vehicle Expense"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "listings_section",
+            "fieldtype": "Section Break",
+            "label": "Listings"
+        },
+        {
+            "fieldname": "listings",
+            "fieldtype": "Table",
+            "label": "Listings",
+            "options": "Vehicle Listing"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "notes_section",
+            "fieldtype": "Section Break",
+            "label": "Notes"
+        },
+        {
+            "fieldname": "notes",
+            "fieldtype": "Table",
+            "label": "Notes",
+            "options": "Vehicle Note"
+        },
+        {
+            "collapsible": 1,
+            "fieldname": "description_section",
+            "fieldtype": "Section Break",
+            "label": "Description"
+        },
+        {
+            "fieldname": "features",
+            "fieldtype": "Small Text",
+            "label": "Features"
+        },
+        {
+            "fieldname": "description",
+            "fieldtype": "Text Editor",
+            "label": "Description"
+        }
+    ],
+    "index_web_pages_for_search": 1,
+    "links": [],
+    "modified": "2026-09-24 00:00:00.000000",
+    "modified_by": "Administrator",
+    "module": "Dealer Management",
+    "name": "Dealer Vehicle",
+    "naming_rule": "By fieldname",
+    "owner": "Administrator",
+    "permissions": [
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "System Manager",
+            "share": 1,
+            "write": 1
+        },
+        {
+            "create": 1,
+            "delete": 1,
+            "email": 1,
+            "export": 1,
+            "print": 1,
+            "read": 1,
+            "report": 1,
+            "role": "Desk User",
+            "share": 1,
+            "write": 1
+        }
+    ],
+    "quick_entry": 0,
+    "search_fields": "vin,stock_number,year,make,model",
+    "sort_field": "modified",
+    "sort_order": "DESC",
+    "states": [],
+    "title_field": "vehicle_id",
+    "track_changes": 1
+}
