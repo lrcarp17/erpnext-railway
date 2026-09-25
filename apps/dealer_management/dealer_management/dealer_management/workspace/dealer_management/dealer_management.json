@@ -220,9 +220,20 @@
       "link_type": "DocType",
       "onboard": 0,
       "type": "Link"
+    },
+    {
+      "dependencies": "",
+      "hidden": 0,
+      "is_query_report": 0,
+      "label": "AI Usage Log",
+      "link_count": 0,
+      "link_to": "AI Usage Log",
+      "link_type": "DocType",
+      "onboard": 0,
+      "type": "Link"
     }
   ],
-  "modified": "2026-09-25 12:00:00.000000",
+  "modified": "2026-09-26 00:00:00.000000",
   "modified_by": "Administrator",
   "module": "Dealer Management",
   "name": "Dealer Management",

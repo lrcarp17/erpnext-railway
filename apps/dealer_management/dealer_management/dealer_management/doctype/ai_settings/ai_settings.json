@@ -9,7 +9,12 @@
   "anthropic_workspace_id",
   "column_break_anthropic",
   "anthropic_model",
-  "help_html"
+  "help_html",
+  "budget_section",
+  "monthly_token_budget",
+  "enforce_token_budget",
+  "column_break_budget",
+  "budget_help_html"
  ],
  "fields": [
   {
@@ -24,7 +29,7 @@
    "label": "API Key"
   },
   {
-   "description": "Required for organization-scoped API keys. Find it in the Anthropic Console under Settings → Workspaces.",
+   "description": "Required for organization-scoped API keys. Find it in the Anthropic Console under Settings \u2192 Workspaces.",
    "fieldname": "anthropic_workspace_id",
    "fieldtype": "Data",
    "label": "Workspace ID"
@@ -44,11 +49,41 @@
    "fieldname": "help_html",
    "fieldtype": "HTML",
    "options": "<p>Configure your Anthropic API credentials here. These settings are used by all AI features in the app, including document import.</p><p>Get an API key from <a href=\"https://console.anthropic.com/settings/keys\" target=\"_blank\">console.anthropic.com</a>. If your key is organization-scoped (not tied to a specific workspace), you'll also need to enter the Workspace ID.</p>"
+  },
+  {
+   "fieldname": "budget_section",
+   "fieldtype": "Section Break",
+   "label": "Usage Budget"
+  },
+  {
+   "default": "0",
+   "description": "Tokens all AI features together may use each calendar month (input, output and cached). 0 means no budget.",
+   "fieldname": "monthly_token_budget",
+   "fieldtype": "Int",
+   "label": "Monthly Token Budget",
+   "non_negative": 1
+  },
+  {
+   "default": "1",
+   "depends_on": "monthly_token_budget",
+   "description": "Stop the inventory assistant and document import once this month's budget is used up.",
+   "fieldname": "enforce_token_budget",
+   "fieldtype": "Check",
+   "label": "Stop AI Features When Budget Is Used"
+  },
+  {
+   "fieldname": "column_break_budget",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "budget_help_html",
+   "fieldtype": "HTML",
+   "options": "<p>Every request to Claude is recorded in <a href=\"/desk/ai-usage-log\">AI Usage Log</a>. The Inventory Assistant shows how much of this month's budget is left.</p><p>This budget is kept by this app. Your Anthropic account's own spend limit and credit balance are on the <a href=\"https://platform.claude.com/settings/billing\" target=\"_blank\">Billing page</a> of the Claude Console.</p>"
   }
  ],
  "issingle": 1,
  "links": [],
- "modified": "2026-09-25 00:00:00.000000",
+ "modified": "2026-09-26 00:00:00.000000",
  "modified_by": "Administrator",
  "module": "Dealer Management",
  "name": "AI Settings",

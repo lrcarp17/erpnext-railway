@@ -14,6 +14,14 @@ import frappe
 from frappe import _
 from frappe.utils import flt, today
 
+from dealer_management.ai_usage import (
+    UsageTally,
+    api_error_message,
+    check_budget,
+    get_budget_status,
+    is_spend_limit_error,
+)
+
 
 TOOLS = [
     {
@@ -107,6 +115,11 @@ TOOLS = [
             },
             "required": ["filters", "fields"],
         },
+    },
+    {
+        "name": "get_token_budget",
+        "description": "Get this month's AI token usage (all AI features in the app) against the monthly token budget, with a breakdown by feature and the current Anthropic rate-limit headroom. Use when the user asks about their token budget, AI usage or remaining tokens.",
+        "input_schema": {"type": "object", "properties": {}},
     },
 ]
 
@@ -369,6 +382,19 @@ def tool_bulk_update_vehicles(filters, fields):
     }
 
 
+def tool_get_token_budget():
+    """This month's AI token use against the budget set in AI Settings."""
+    status = get_budget_status()
+    status.pop("can_configure", None)
+    if not status["budget"]:
+        status["note"] = "No monthly token budget is set in AI Settings; usage is tracked but not limited."
+    status["note_on_balance"] = (
+        "This is the app's own budget. The Anthropic account's credit balance and spend limit "
+        "are only visible in the Claude Console billing page."
+    )
+    return status
+
+
 TOOL_FUNCTIONS = {
     "search_vehicles": tool_search_vehicles,
     "get_vehicle_details": tool_get_vehicle_details,
@@ -376,6 +402,7 @@ TOOL_FUNCTIONS = {
     "get_inventory_summary": tool_get_inventory_summary,
     "get_sales_summary": tool_get_sales_summary,
     "bulk_update_vehicles": tool_bulk_update_vehicles,
+    "get_token_budget": tool_get_token_budget,
 }
 
 
@@ -391,6 +418,7 @@ Guidelines:
 - When showing vehicle lists, format them clearly with key details (year, make, model, status, price)
 - When updating vehicles, confirm what you're about to change before doing it
 - Use the inventory summary tool to answer questions about totals and statistics
+- Use the token budget tool for questions about AI token usage, the monthly token budget or remaining tokens
 - For VINs, users often provide just the last few characters - that's enough to find a vehicle
 - Currency values are in USD
 - Be concise but helpful
@@ -423,6 +451,7 @@ def chat(message, conversation_history=None):
             _("Configure an Anthropic API key in AI Settings to use the inventory assistant."),
             title=_("Not Configured"),
         )
+    check_budget()
 
     conversation_history = frappe.parse_json(conversation_history) if conversation_history else []
     conversation_history.append({"role": "user", "content": message})
@@ -431,44 +460,53 @@ def chat(message, conversation_history=None):
     client = anthropic.Anthropic(api_key=api_key, default_headers=default_headers)
 
     messages = conversation_history.copy()
-    
-    while True:
-        response = client.messages.create(
-            model=model or "claude-sonnet-4-20250514",
-            max_tokens=4096,
-            system=_get_system_prompt(),
-            tools=TOOLS,
-            messages=messages,
-        )
+    tally = UsageTally("Inventory Assistant", model)
 
-        if response.stop_reason == "tool_use":
-            tool_results = []
-            assistant_content = response.content
+    try:
+        while True:
+            raw = client.messages.with_raw_response.create(
+                model=model or "claude-sonnet-4-20250514",
+                max_tokens=4096,
+                system=_get_system_prompt(),
+                tools=TOOLS,
+                messages=messages,
+            )
+            response = tally.add_raw(raw)
 
-            for block in response.content:
-                if block.type == "tool_use":
-                    tool_name = block.name
-                    tool_input = block.input
-                    tool_fn = TOOL_FUNCTIONS.get(tool_name)
+            if response.stop_reason == "tool_use":
+                tool_results = []
+                assistant_content = response.content
 
-                    if tool_fn:
-                        try:
-                            result = tool_fn(**tool_input)
-                        except Exception as e:
-                            result = {"error": str(e)}
-                    else:
-                        result = {"error": f"Unknown tool: {tool_name}"}
+                for block in response.content:
+                    if block.type == "tool_use":
+                        tool_name = block.name
+                        tool_input = block.input
+                        tool_fn = TOOL_FUNCTIONS.get(tool_name)
 
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": block.id,
-                        "content": json.dumps(result),
-                    })
+                        if tool_fn:
+                            try:
+                                result = tool_fn(**tool_input)
+                            except Exception as e:
+                                result = {"error": str(e)}
+                        else:
+                            result = {"error": f"Unknown tool: {tool_name}"}
 
-            messages.append({"role": "assistant", "content": assistant_content})
-            messages.append({"role": "user", "content": tool_results})
-        else:
-            break
+                        tool_results.append({
+                            "type": "tool_result",
+                            "tool_use_id": block.id,
+                            "content": json.dumps(result),
+                        })
+
+                messages.append({"role": "assistant", "content": assistant_content})
+                messages.append({"role": "user", "content": tool_results})
+            else:
+                break
+    except anthropic.APIError as e:
+        # Tokens spent before the failure still count against the budget.
+        tally.save()
+        _raise_api_error(e)
+
+    tally.save()
 
     assistant_message = ""
     for block in response.content:
@@ -480,4 +518,24 @@ def chat(message, conversation_history=None):
     return {
         "response": assistant_message,
         "conversation": conversation_history,
+        "usage": tally.as_dict(),
     }
+
+
+def _raise_api_error(error):
+    import anthropic
+
+    if isinstance(error, anthropic.AuthenticationError):
+        frappe.throw(_("The Anthropic API key was rejected. Check AI Settings."))
+    if isinstance(error, anthropic.APIStatusError) and is_spend_limit_error(error):
+        frappe.throw(
+            _("Your Anthropic account has reached its spend limit: {0}").format(api_error_message(error)),
+            title=_("Anthropic Spend Limit Reached"),
+        )
+    if isinstance(error, anthropic.RateLimitError):
+        frappe.throw(_("The assistant is getting too many requests right now. Please try again in a minute."))
+    if isinstance(error, anthropic.APIConnectionError):
+        frappe.throw(_("Could not reach Anthropic. Check the server's internet access."))
+    message = api_error_message(error) if isinstance(error, anthropic.APIStatusError) else str(error)
+    frappe.log_error(title="Inventory assistant request failed", message=message)
+    frappe.throw(_("The assistant could not answer: {0}").format(message))
