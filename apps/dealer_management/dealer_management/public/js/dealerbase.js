@@ -16,16 +16,6 @@ dealer_management.VEHICLE_STATUS = {
 	Wholesale: { hex: "#94a3b8", indicator: "gray" },
 };
 
-dealer_management.LEAD_STATUS = {
-	New: "blue",
-	Contacted: "cyan",
-	"Appointment Set": "purple",
-	Showed: "orange",
-	Negotiating: "yellow",
-	Sold: "green",
-	Lost: "gray",
-};
-
 dealer_management.currency_code = function () {
 	return (frappe.boot && frappe.boot.sysdefaults && frappe.boot.sysdefaults.currency) || "USD";
 };

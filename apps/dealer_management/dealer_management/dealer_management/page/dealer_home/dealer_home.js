@@ -99,7 +99,7 @@ class DealerHome {
 		const aging = this.aging_html(d.aging || [], inv);
 
 		this.$root.html(`
-			${this.hero_html(inv, d.leads)}
+			${this.hero_html(inv)}
 			${is_empty ? this.onboarding_html() : ""}
 			${this.nav_html(d)}
 			<h2 class="db-section-title">${__("At a glance")}</h2>
@@ -107,15 +107,9 @@ class DealerHome {
 			${this.pipeline_html(d.status_breakdown || [], inv.total)}
 			<div class="db-grid db-grid-2-1">
 				${this.recent_vehicles_html(d.recent_vehicles || [])}
-				${d.leads ? this.follow_ups_html(d.leads) : aging}
+				${aging}
 			</div>
-			${
-				d.sales
-					? `<div class="db-grid db-grid-2-1">${this.trend_card_html(d.sales)}${d.leads ? aging : ""}</div>`
-					: d.leads
-					? aging
-					: ""
-			}
+			${d.sales ? this.trend_card_html(d.sales) : ""}
 		`);
 
 		if (d.sales) this.render_trend_chart(d.sales.trend || []);
@@ -123,12 +117,10 @@ class DealerHome {
 		this.restore_search();
 	}
 
-	hero_html(inv, leads) {
+	hero_html(inv) {
 		const date = frappe.datetime.str_to_user(frappe.datetime.get_today());
 		const bits = [];
 		if (inv.total) bits.push(__("{0} units in stock", [inv.total]));
-		if (leads && leads.follow_ups_due)
-			bits.push(__("{0} follow-ups due", [leads.follow_ups_due]));
 		if (inv.problem) bits.push(__("{0} flagged as problem", [inv.problem]));
 		const summary = bits.length
 			? bits.map((b) => this.esc(b)).join(" · ")
@@ -143,7 +135,7 @@ class DealerHome {
 				</div>
 				<label class="db-search">
 					${frappe.utils.icon("search", "sm")}
-					<input type="search" class="db-search-input" placeholder="${__("Jump to… vehicles, leads, expenses")}"
+					<input type="search" class="db-search-input" placeholder="${__("Jump to… vehicles, sales, expenses")}"
 						aria-label="${__("Find a feature")}" autocomplete="off">
 				</label>
 			</div>`;
@@ -154,7 +146,6 @@ class DealerHome {
 	nav_sections(d) {
 		const inv = d.inventory || {};
 		const nav = d.nav || {};
-		const leads = d.leads;
 		const sales = d.sales;
 		const n = (v) => format_number(v || 0, null, 0);
 		const counted = (doctype, label) => (nav[doctype] != null ? __(label, [n(nav[doctype])]) : null);
@@ -188,14 +179,8 @@ class DealerHome {
 				],
 			},
 			{
-				title: __("Sales & Customers"),
+				title: __("Sales & Expenses"),
 				tiles: [
-					{
-						label: __("Leads"), icon: "users", tone: "blue", doctype: "Dealer Lead", create: true,
-						desc: __("Prospects, follow-ups and appointments"),
-						stat: leads ? __("{0} open", [n(leads.open)]) : null,
-						badge: leads && leads.follow_ups_due ? __("{0} due", [leads.follow_ups_due]) : null,
-					},
 					{
 						label: __("Sales"), icon: "handshake", tone: "green", doctype: "Vehicle Sale", create: true,
 						desc: __("Deals, financing and gross profit"),
@@ -593,35 +578,6 @@ class DealerHome {
 						</table></div>`
 						: `<div class="db-empty">${__("No vehicles yet. Add one to get started.")}</div>`
 				}
-			</div>`;
-	}
-
-	follow_ups_html(leads) {
-		const items = (leads.follow_ups || [])
-			.map((l) => {
-				const name = [l.first_name, l.last_name].filter(Boolean).join(" ") || l.name;
-				const overdue = l.next_follow_up < frappe.datetime.get_today();
-				return `
-				<li class="db-clickable" data-route='${this.esc(JSON.stringify(["Form", "Dealer Lead", l.name]))}'>
-					<span class="db-avatar">${this.esc(frappe.get_abbr(name))}</span>
-					<div class="db-li-body">
-						<div class="db-li-title">${this.esc(name)}</div>
-						<div class="db-li-sub">${this.esc(__(l.status))}${l.phone ? " · " + this.esc(l.phone) : ""}</div>
-					</div>
-					<span class="db-badge ${overdue ? "db-badge-red" : "db-badge-amber"}">${overdue ? __("Overdue") : __("Today")}</span>
-				</li>`;
-			})
-			.join("");
-		return `
-			<div class="db-card">
-				<div class="db-card-head">
-					<div>
-						<div class="db-card-title">${__("Follow-ups Due")}</div>
-						<div class="db-card-sub">${__("{0} open leads · {1} new", [leads.open, leads.new])}</div>
-					</div>
-					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Dealer Lead"]))}'>${__("Leads")} →</a>
-				</div>
-				${items ? `<ul class="db-list">${items}</ul>` : `<div class="db-empty db-empty-sm">${__("You're all caught up. 🎉")}</div>`}
 			</div>`;
 	}
 

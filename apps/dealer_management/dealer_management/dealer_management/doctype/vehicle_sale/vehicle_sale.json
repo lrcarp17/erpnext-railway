@@ -15,7 +15,6 @@
     "buyer_email",
     "column_break_buyer",
     "buyer_address",
-    "lead",
     "pricing_section",
     "sale_price",
     "trade_in_vehicle",
@@ -117,12 +116,6 @@
       "fieldname": "buyer_address",
       "fieldtype": "Text",
       "label": "Buyer Address"
-    },
-    {
-      "fieldname": "lead",
-      "fieldtype": "Link",
-      "label": "Lead",
-      "options": "Dealer Lead"
     },
     {
       "fieldname": "pricing_section",

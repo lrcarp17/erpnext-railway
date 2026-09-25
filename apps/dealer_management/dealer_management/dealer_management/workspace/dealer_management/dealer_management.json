@@ -88,17 +88,6 @@
       "dependencies": "",
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Lead",
-      "link_count": 0,
-      "link_to": "Dealer Lead",
-      "link_type": "DocType",
-      "onboard": 1,
-      "type": "Link"
-    },
-    {
-      "dependencies": "",
-      "hidden": 0,
-      "is_query_report": 0,
       "label": "Vehicle Sale",
       "link_count": 0,
       "link_to": "Vehicle Sale",
@@ -297,20 +286,6 @@
       "doc_view": "List",
       "label": "Vehicle List",
       "link_to": "Vehicle Inventory",
-      "type": "DocType"
-    },
-    {
-      "color": "Green",
-      "doc_view": "New",
-      "label": "Add Lead",
-      "link_to": "Dealer Lead",
-      "type": "DocType"
-    },
-    {
-      "color": "Grey",
-      "doc_view": "List",
-      "label": "Lead List",
-      "link_to": "Dealer Lead",
       "type": "DocType"
     }
   ],

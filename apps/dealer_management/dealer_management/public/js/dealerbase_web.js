@@ -15,10 +15,10 @@
 			<div class="db-auth-brand"><img src="${logo}" alt="">Dealerbase</div>
 			<div class="db-auth-copy">
 				<h2>Run your whole dealership from one place.</h2>
-				<p>Inventory, titles, recon, leads and deals, tracked from acquisition to sale with real-time profit on every unit.</p>
+				<p>Inventory, titles, recon and deals, tracked from acquisition to sale with real-time profit on every unit.</p>
 				<ul class="db-auth-features">
 					<li>Live inventory pipeline and lot aging</li>
-					<li>Leads, follow-ups and deal tracking</li>
+					<li>Deal tracking with profit on every sale</li>
 					<li>AI document import and inventory assistant</li>
 				</ul>
 			</div>

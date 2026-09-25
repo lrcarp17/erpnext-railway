@@ -1,5 +1,6 @@
 frappe.ui.form.on("Vehicle Inventory", {
   refresh: function (frm) {
+    render_summary(frm);
     render_warnings(frm);
     render_upload_button(frm);
     setup_expense_total_refresh(frm);
@@ -18,6 +19,7 @@ frappe.ui.form.on("Vehicle Inventory", {
   },
 
   asking_price: function (frm) {
+    render_summary(frm);
     render_warnings(frm);
   },
 
@@ -32,6 +34,13 @@ frappe.ui.form.on("Vehicle Inventory", {
   status: function (frm) {
     render_warnings(frm);
   },
+
+  floor_price: render_summary,
+  book_value: render_summary,
+  lot_date: render_summary,
+  lot_expiration_date: render_summary,
+  mileage_current: render_summary,
+  total_expenses: render_summary,
 });
 
 frappe.ui.form.on("Vehicle Expense", {
@@ -51,6 +60,132 @@ frappe.ui.form.on("Vehicle Photo", {
     render_warnings(frm);
   },
 });
+
+// ---------- Summary dashboard ----------
+
+// Figures a dealer checks first: age on the lot, price, cost and profit.
+// Age is computed live (days_on_lot is only refreshed on save), using the same
+// fallbacks as the home page's aging buckets.
+function render_summary(frm) {
+  const $wrapper = frm.fields_dict.summary_html.$wrapper;
+  if (frm.is_new()) {
+    $wrapper.html("");
+    return;
+  }
+
+  const doc = frm.doc;
+  // Purchase cost is the saved investment less saved expenses; kept aside so
+  // editing the expenses table updates the total before the vehicle is saved.
+  if (!frm.__summary_cost || frm.__summary_cost.name !== doc.name || !frm.is_dirty()) {
+    frm.__summary_cost = {
+      name: doc.name,
+      purchase: flt(doc.total_investment) - flt(doc.total_expenses),
+    };
+  }
+  const purchase = frm.__summary_cost.purchase;
+  const expenses = flt(doc.total_expenses);
+  const cost = purchase + expenses;
+  const asking = flt(doc.asking_price);
+  const sold = doc.status === "Sold" || doc.status === "Wholesale";
+
+  const start = doc.lot_date || doc.acquisition_date || (doc.creation || "").slice(0, 10);
+  const end = sold && doc.sale_date ? doc.sale_date : frappe.datetime.get_today();
+  const days = start ? Math.max(0, frappe.datetime.get_day_diff(end, start)) : null;
+  const age_tone = days == null ? "" : days > 90 ? "red" : days > 60 ? "orange" : days > 30 ? "yellow" : "green";
+
+  const money = (v) => format_currency(v, vehicle_currency(), 0);
+  const date = (d) => frappe.datetime.str_to_user(d);
+
+  let lot_sub = start ? __("Since {0}", [date(start)]) : __("Set a lot date");
+  if (!sold && doc.lot_expiration_date) {
+    const left = frappe.datetime.get_day_diff(doc.lot_expiration_date, frappe.datetime.get_today());
+    lot_sub = left < 0
+      ? __("Lot expired {0} days ago", [-left])
+      : __("Lot expires in {0} days", [left]);
+  }
+
+  const profit = asking - cost;
+  // Same basis as Vehicle Sale: profit as a percentage of total cost.
+  const margin = asking && cost ? Math.round((profit / cost) * 100) : null;
+
+  const tiles = [
+    {
+      label: sold ? __("Days to Sell") : __("Days on Lot"),
+      value: days == null ? "–" : format_number(days, null, 0),
+      sub: lot_sub,
+      tone: age_tone,
+    },
+    {
+      label: __("Asking Price"),
+      value: asking ? money(asking) : "–",
+      sub: doc.floor_price ? __("Floor {0}", [money(doc.floor_price)]) : __("No floor price"),
+    },
+    {
+      label: __("Total Cost"),
+      value: cost ? money(cost) : "–",
+      sub: __("Purchase {0} + expenses {1}", [money(purchase), money(expenses)]),
+    },
+    {
+      label: sold ? __("Profit") : __("Potential Profit"),
+      value: asking || cost ? money(profit) : "–",
+      sub: !asking ? __("Set an asking price") : margin == null ? "" : __("{0}% on cost", [margin]),
+      tone: !asking ? "" : profit < 0 ? "red" : "green",
+      key: "profit",
+    },
+    {
+      label: __("Book Value"),
+      value: doc.book_value ? money(doc.book_value) : "–",
+      sub: doc.book_value && asking
+        ? (asking >= doc.book_value
+          ? __("Asking {0} over book", [money(asking - doc.book_value)])
+          : __("Asking {0} under book", [money(doc.book_value - asking)]))
+        : "",
+    },
+    {
+      label: __("Mileage"),
+      value: doc.mileage_current || doc.mileage_in
+        ? format_number(doc.mileage_current || doc.mileage_in, null, 0)
+        : "–",
+      sub: doc.mileage_in && doc.mileage_current && doc.mileage_current !== doc.mileage_in
+        ? __("{0} since intake", [format_number(doc.mileage_current - doc.mileage_in, null, 0)])
+        : "",
+    },
+  ];
+
+  const esc = frappe.utils.escape_html;
+  $wrapper.html(`
+    <div class="vi-summary">
+      ${tiles
+        .map(
+          (t) => `
+        <div class="vi-tile ${t.tone ? "vi-tone-" + t.tone : ""}" ${t.key ? `data-key="${t.key}"` : ""}>
+          <div class="vi-label">${esc(t.label)}</div>
+          <div class="vi-value">${esc(t.value)}</div>
+          <div class="vi-sub">${esc(t.sub || "")}</div>
+        </div>`
+        )
+        .join("")}
+    </div>
+  `);
+
+  // A sold vehicle's real profit comes from its sale, not the asking price.
+  if (sold && doc.sale) {
+    frappe.db.get_value("Vehicle Sale", doc.sale, ["sale_price", "gross_profit", "profit_margin"]).then((r) => {
+      const sale = r.message;
+      if (!sale || !sale.sale_price) return;
+      const $tile = $wrapper.find('[data-key="profit"]');
+      const gross = flt(sale.gross_profit);
+      $tile.removeClass("vi-tone-red vi-tone-green").addClass(gross < 0 ? "vi-tone-red" : "vi-tone-green");
+      $tile.find(".vi-value").text(money(gross));
+      $tile.find(".vi-sub").text(__("Sold for {0} · {1}% on cost", [money(sale.sale_price), Math.round(flt(sale.profit_margin))]));
+    });
+  }
+}
+
+function vehicle_currency() {
+  return (window.dealer_management && dealer_management.currency_code && dealer_management.currency_code()) ||
+    frappe.defaults.get_default("currency");
+}
 
 function render_warnings(frm) {
   if (frm.is_new()) {

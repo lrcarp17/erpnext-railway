@@ -1,12 +1,11 @@
 # Dealer Management
 
-A comprehensive ERPNext application for independent auto dealers to manage vehicle inventory, acquisitions, sales leads, listings, and expenses.
+A comprehensive ERPNext application for independent auto dealers to manage vehicle inventory, acquisitions, sales, listings, and expenses.
 
 ## Features
 
 - **Vehicle Inventory Management**: Track vehicles from acquisition through sale
 - **Acquisition Tracking**: Record vehicle purchases from auctions, trade-ins, and private sales
-- **Lead Management**: Manage sales leads and customer interactions
 - **Multi-Platform Listings**: Track vehicle listings across multiple platforms
 - **Expense Tracking**: Manage both vehicle-specific and company-wide expenses
 - **Lienholder Management**: Store information for common lienholders and finance companies
@@ -42,7 +41,6 @@ bench --site [site-name] migrate
 | DocType | Description | Auto-naming |
 |---------|-------------|-------------|
 | **Vehicle Inventory** | Main vehicle inventory record | VH-.YYYY.-.##### |
-| **Dealer Lead** | Sales leads and customer contacts | LD-.YYYY.-.##### |
 | **Vehicle Sale** | Completed vehicle sales transactions | - |
 | **Vehicle Acquisition** | Vehicle purchase/acquisition records | - |
 | **Company Expense** | Company-wide expenses | EXP-.YYYY.-.MM.-.##### |
@@ -112,7 +110,6 @@ Pre-configured with major auto finance companies:
 
 Access the Dealer Management workspace from the sidebar for quick access to:
 - Add/View Vehicles
-- Add/View Leads
 - Acquisition management
 - Expense tracking
 - Setup and configuration
@@ -132,13 +129,6 @@ Access the Dealer Management workspace from the sidebar for quick access to:
 2. Go to Acquisition > Vehicle Acquisition
 3. Link to the vehicle and enter acquisition details
 4. Select the acquisition source
-
-### Managing Leads
-
-1. Go to Sales > Dealer Lead
-2. Add new leads with contact information
-3. Link leads to vehicles they're interested in
-4. Track follow-ups and status
 
 ### Tracking Expenses
 
@@ -182,4 +172,4 @@ MIT License
 
 ## Naming Note
 
-The vehicle and lead DocTypes are named **Vehicle Inventory** and **Dealer Lead** because ERPNext already ships DocTypes called `Vehicle` and `Lead`. Using the same names would clash with ERPNext's own records when the app is installed. (Vehicle Inventory was called Dealer Vehicle until the `rename_dealer_vehicle_to_vehicle_inventory` patch, which renames it in place on existing sites.)
+The vehicle DocType is named **Vehicle Inventory** because ERPNext already ships a DocType called `Vehicle`. Using the same name would clash with ERPNext's own records when the app is installed. (Vehicle Inventory was called Dealer Vehicle until the `rename_dealer_vehicle_to_vehicle_inventory` patch, which renames it in place on existing sites.)

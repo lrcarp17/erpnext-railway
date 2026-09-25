@@ -175,3 +175,69 @@ html[data-theme="dark"] {
 ::selection {
 	background: rgba(99, 102, 241, 0.22);
 }
+
+/* ---------- Vehicle Inventory summary ---------- */
+
+.vi-summary {
+	--vi-green: #059669;
+	--vi-yellow: #ca8a04;
+	--vi-orange: #ea580c;
+	--vi-red: #dc2626;
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+	gap: 12px;
+	margin-bottom: 4px;
+}
+
+html[data-theme="dark"] .vi-summary {
+	--vi-green: #34d399;
+	--vi-yellow: #facc15;
+	--vi-orange: #fb923c;
+	--vi-red: #f87171;
+}
+
+.vi-tile {
+	--vi-tone: var(--border-color);
+	background: var(--card-bg);
+	border: 1px solid var(--border-color);
+	border-top: 3px solid var(--vi-tone);
+	border-radius: 10px;
+	padding: 12px 14px;
+	min-width: 0;
+}
+
+.vi-label {
+	font-size: 12px;
+	font-weight: 500;
+	color: var(--text-muted);
+}
+
+.vi-value {
+	font-size: 22px;
+	font-weight: 600;
+	line-height: 1.3;
+	margin-top: 2px;
+	color: var(--heading-color, var(--text-color));
+	font-variant-numeric: tabular-nums;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vi-sub {
+	font-size: 12px;
+	color: var(--text-muted);
+	margin-top: 2px;
+	min-height: 1.4em;
+}
+
+.vi-tone-green { --vi-tone: var(--vi-green); }
+.vi-tone-yellow { --vi-tone: var(--vi-yellow); }
+.vi-tone-orange { --vi-tone: var(--vi-orange); }
+.vi-tone-red { --vi-tone: var(--vi-red); }
+
+.vi-tone-green .vi-value,
+.vi-tone-red .vi-value,
+.vi-tone-orange .vi-value {
+	color: var(--vi-tone);
+}

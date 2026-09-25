@@ -27,7 +27,6 @@ def get_dashboard_data():
     frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     can_read_sales = frappe.has_permission("Vehicle Sale", "read")
-    can_read_leads = frappe.has_permission("Dealer Lead", "read")
 
     return {
         "inventory": get_inventory_metrics(),
@@ -36,7 +35,6 @@ def get_dashboard_data():
         "aging": get_aging_buckets(),
         "recent_vehicles": get_recent_vehicles(),
         "recent_sales": get_recent_sales() if can_read_sales else None,
-        "leads": get_lead_metrics() if can_read_leads else None,
         "nav": get_nav_counts(),
     }
 
@@ -257,40 +255,3 @@ def get_recent_sales(limit=5):
         as_dict=True,
     )
 
-
-def get_lead_metrics():
-    """Open leads and the follow-ups that are due."""
-    today_date = getdate(today())
-    row = frappe.db.sql(
-        """
-        SELECT
-            SUM(CASE WHEN status NOT IN ('Sold', 'Lost') THEN 1 ELSE 0 END) as open,
-            SUM(CASE WHEN status = 'New' THEN 1 ELSE 0 END) as new,
-            SUM(CASE WHEN status NOT IN ('Sold', 'Lost')
-                AND next_follow_up IS NOT NULL AND next_follow_up <= %(today)s
-                THEN 1 ELSE 0 END) as due
-        FROM `tabDealer Lead`
-        """,
-        {"today": today_date},
-        as_dict=True,
-    )[0]
-
-    follow_ups = frappe.db.sql(
-        """
-        SELECT name, first_name, last_name, status, next_follow_up, phone, timeline
-        FROM `tabDealer Lead`
-        WHERE status NOT IN ('Sold', 'Lost')
-            AND next_follow_up IS NOT NULL AND next_follow_up <= %(today)s
-        ORDER BY next_follow_up ASC
-        LIMIT 5
-        """,
-        {"today": today_date},
-        as_dict=True,
-    )
-
-    return {
-        "open": row.open or 0,
-        "new": row.new or 0,
-        "follow_ups_due": row.due or 0,
-        "follow_ups": follow_ups,
-    }

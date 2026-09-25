@@ -265,6 +265,5 @@ fixtures = [
 
 autoname_series = {
     "Vehicle Inventory": "VH-.YYYY.-.#####",
-    "Dealer Lead": "LD-.YYYY.-.#####",
     "Company Expense": "EXP-.YYYY.-.MM.-.#####"
 }
