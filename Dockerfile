@@ -60,6 +60,12 @@ RUN sed -i -e 's/^worker_processes .*/worker_processes 2;/' \
 # The Railway volume mounts over sites/ and hides these; the entrypoint puts them back.
 RUN cp sites/apps.txt sites/apps.json /home/frappe/
 
+# A fingerprint of the apps' code, so the entrypoint migrates whenever any app changes,
+# not only when an app's version number is bumped (Dealerbase rarely bumps it).
+RUN find apps -type f \( -name '*.py' -o -name '*.json' -o -name '*.js' \) \
+      -not -path '*/node_modules/*' -print0 | sort -z | xargs -0 sha256sum \
+      | sha256sum | cut -c1-16 > /home/frappe/apps.hash
+
 # The image has no bytecode for whoosh, and Python 3.14 compiling it prints invalid
 # escape SyntaxWarnings to stderr on every boot, where Railway shows them as errors.
 RUN env/bin/python -W ignore -m compileall -q env/lib/python3.*/site-packages/whoosh || true

@@ -124,6 +124,7 @@ fi
 # schema changes and fixtures. A database backup is taken first. Also install any
 # apps added to the image since the last boot (e.g. Dealerbase).
 version=$(jq -r 'to_entries | map("\(.key) \(.value.version)") | join(", ")' sites/apps.json)
+version="$version, code $(cat /home/frappe/apps.hash 2>/dev/null || echo unknown)"
 if [ "$(cat "sites/$SITE/.railway-version" 2>/dev/null)" != "$version" ]; then
   if [ -z "${fresh:-}" ]; then
     echo "railway: new version ($version), backing up the database and migrating"
