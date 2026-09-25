@@ -203,6 +203,10 @@ const vehicle_view = {
       this.edit(frm, e.currentTarget.dataset.viEdit || null);
     });
     $w.find("[data-vi-action=price]").on("click", () => this.change_price(frm));
+    $w.find("[data-vi-action=photos]").on("click", (e) => {
+      e.preventDefault();
+      this.upload_photos(frm);
+    });
     $w.find("[data-vi-action=sale]").on("click", () => frappe.new_doc("Vehicle Sale", { vehicle: frm.doc.name }));
     $w.find("[data-vi-action=acquisition]").on("click", () =>
       frappe.new_doc("Vehicle Acquisition", { vehicle: frm.doc.name })
@@ -543,8 +547,9 @@ const vehicle_view = {
             .map((p) => `<a href="#" data-vi-photo="${esc(p.photo)}"><img src="${esc(p.photo)}" alt="${esc(p.caption || p.photo_type || "")}" loading="lazy"></a>`)
             .join("")}
         </div>
-        ${photos.length > 12 ? `<p class="vi-note">${esc(__("{0} more photos", [photos.length - 12]))}</p>` : ""}`
-      : `<div class="vi-empty"><p>${__("No photos yet.")}</p><button type="button" class="vi-btn" data-vi-edit="photos">${__("Add photos")}</button></div>`;
+        ${photos.length > 12 ? `<p class="vi-note">${esc(__("{0} more photos", [photos.length - 12]))}</p>` : ""}
+        <div class="vi-card-links"><a href="#" data-vi-action="photos">+ ${__("Upload photos")}</a></div>`
+      : `<div class="vi-empty"><p>${__("No photos yet.")}</p><button type="button" class="vi-btn" data-vi-action="photos">${__("Upload photos")}</button></div>`;
     return card(__("Photos"), body, photos.length ? esc(__("{0} photos", [photos.length])) : "", "photos");
   },
 
@@ -594,6 +599,51 @@ const vehicle_view = {
       "",
       "features"
     );
+  },
+
+  // Pick any number of images at once. Each finished upload is queued and
+  // added to the vehicle on the server in batches, one request at a time so
+  // saves never race; the overview reloads once the queue drains.
+  upload_photos(frm) {
+    const name = frm.doc.name;
+    const method = "dealer_management.dealer_management.doctype.vehicle_inventory.vehicle_inventory.upload_vehicle_photos";
+    const pending = [];
+    let busy = false;
+    let added = 0;
+
+    const flush = () => {
+      if (busy || !pending.length) return;
+      busy = true;
+      const files = pending.splice(0);
+      frappe
+        .xcall(method, { vehicle_name: name, files })
+        .then((r) => {
+          added += (r && r.count) || 0;
+        })
+        .finally(() => {
+          busy = false;
+          if (pending.length) return flush();
+          if (frm.doc.name === name) frm.reload_doc();
+          if (added) {
+            frappe.show_alert({ message: __(added === 1 ? "{0} photo added" : "{0} photos added", [added]), indicator: "green" });
+          }
+        });
+    };
+
+    new frappe.ui.FileUploader({
+      doctype: frm.doctype,
+      docname: name,
+      folder: "Home/Attachments",
+      allow_multiple: true,
+      make_attachments_public: true,
+      restrictions: { allowed_file_types: ["image/*"] },
+      upload_notes: __("Select or drop as many photos as you like. They are added to this vehicle in the order shown."),
+      on_success: (file_doc) => {
+        if (!file_doc || !file_doc.file_url) return;
+        pending.push(file_doc.file_url);
+        flush();
+      },
+    });
   },
 
   primary_photo(doc) {

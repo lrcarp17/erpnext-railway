@@ -238,23 +238,38 @@ def get_vehicle_warnings(vehicle_name):
 
 
 @frappe.whitelist()
-def upload_vehicle_photos(vehicle_name, files):
-    """Upload multiple photos to a vehicle."""
+def upload_vehicle_photos(vehicle_name, files, photo_type="Exterior"):
+    """Add already-uploaded image files to a vehicle's photos, in order.
+    Files already on the vehicle are skipped; the first photo becomes primary
+    when the vehicle has none."""
     import json
-    
-    frappe.has_permission("Vehicle Inventory", "write", throw=True)
-    
+
     files = json.loads(files) if isinstance(files, str) else files
     doc = frappe.get_doc("Vehicle Inventory", vehicle_name)
-    
-    for file_url in files:
+    doc.check_permission("write")
+
+    existing = {p.photo for p in doc.photos or []}
+    sequence = max([cint(p.sequence) for p in doc.photos or []] or [0])
+    has_primary = any(cint(p.is_primary) for p in doc.photos or [])
+
+    added = 0
+    for file_url in files or []:
+        if not file_url or file_url in existing:
+            continue
+        existing.add(file_url)
+        sequence += 1
         doc.append("photos", {
             "photo": file_url,
-            "photo_type": "Exterior",
+            "photo_type": photo_type or "Exterior",
+            "sequence": sequence,
+            "is_primary": 0 if has_primary else 1,
         })
-    
-    doc.save()
-    return {"success": True, "count": len(files)}
+        has_primary = True
+        added += 1
+
+    if added:
+        doc.save()
+    return {"success": True, "count": added}
 
 
 # Fields shown on the overview for each related record.
