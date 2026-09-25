@@ -2,6 +2,8 @@ app_name = "dealer_management"
 app_title = "Dealer Management"
 app_publisher = "Your Company"
 app_description = "Vehicle inventory and sales management for independent auto dealers"
+app_logo_url = "/assets/dealer_management/images/dealerbase-logo.svg"
+app_home = "/desk/dealer-home"
 app_email = "info@yourcompany.com"
 app_license = "MIT"
 
@@ -11,30 +13,28 @@ app_license = "MIT"
 # required_apps = []
 
 # Each item in the list will be shown as an app in the apps page
-# add_to_apps_screen = [
-# 	{
-# 		"name": "dealer_management",
-# 		"logo": "/assets/dealer_management/logo.png",
-# 		"title": "Dealer Management",
-# 		"route": "/dealer_management",
-# 		"has_permission": "dealer_management.api.permission.has_app_permission"
-# 	}
-# ]
+add_to_apps_screen = [
+    {
+        "name": "dealer_management",
+        "logo": "/assets/dealer_management/images/dealerbase-logo.svg",
+        "title": "Dealerbase",
+        "route": "/desk/dealer-home",
+    }
+]
 
 # Includes in <head>
 # ------------------
 
 # include js, css files in header of desk.html
-# app_include_css = "/assets/dealer_management/css/dealer_management.css"
-# app_include_js = "/assets/dealer_management/js/dealer_management.js"
+app_include_css = ["/assets/dealer_management/css/dealerbase_theme.css"]
 app_include_js = [
+    "/assets/dealer_management/js/dealerbase.js",
     "/assets/dealer_management/js/document_import.js",
-    "/assets/dealer_management/js/workspace_dashboard.js",
 ]
 
 # include js, css files in header of web template
-# web_include_css = "/assets/dealer_management/css/dealer_management.css"
-# web_include_js = "/assets/dealer_management/js/dealer_management.js"
+web_include_css = ["/assets/dealer_management/css/dealerbase_web.css"]
+web_include_js = ["/assets/dealer_management/js/dealerbase_web.js"]
 
 # include custom scss in every website theme (without signing in)
 # website_theme_scss = "dealer_management/public/scss/website"
@@ -86,8 +86,12 @@ app_include_js = [
 # Installation
 # ------------
 
-# before_install = "dealer_management.install.before_install"
-# after_install = "dealer_management.install.after_install"
+after_install = "dealer_management.install.after_install"
+after_migrate = "dealer_management.install.after_migrate"
+
+# The setup wizard resets the desk home page when it finishes; point it back at
+# the Dealerbase dashboard.
+setup_wizard_success = "dealer_management.install.after_setup_wizard"
 
 # Uninstallation
 # ------------

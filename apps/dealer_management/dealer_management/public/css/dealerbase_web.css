@@ -1,0 +1,200 @@
+/*
+ * Dealerbase sign-in screens (login, password reset).
+ * Scoped by data-path so the rest of the website is untouched.
+ */
+
+body[data-path="login"],
+body[data-path="update-password"] {
+	--db-accent: #4f46e5;
+	--db-accent-hover: #4338ca;
+	--db-panel-width: 46vw;
+	background: #f8fafc;
+}
+
+body[data-path="login"] .page-content-wrapper,
+body[data-path="update-password"] .page-content-wrapper {
+	min-height: 100vh;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 48px 16px;
+}
+
+body[data-path="login"] .page-content-wrapper > main,
+body[data-path="update-password"] .page-content-wrapper > main {
+	width: 100%;
+}
+
+body[data-path="login"] .page-card,
+body[data-path="update-password"] .page-card {
+	max-width: 400px !important;
+	padding: 36px 32px !important;
+	background: #fff !important;
+	border: 1px solid #e2e8f0;
+	border-radius: 16px !important;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 20px 40px -16px rgba(15, 23, 42, 0.16);
+}
+
+body[data-path="login"] .page-card-head .app-logo,
+body[data-path="update-password"] .page-card-head .app-logo {
+	width: 44px;
+	height: 44px;
+	border-radius: 11px;
+	margin-bottom: 8px;
+}
+
+body[data-path="login"] .page-card-head h4,
+body[data-path="update-password"] .page-card-head h4 {
+	font-size: 22px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	color: #0f172a;
+}
+
+body[data-path="login"] .page-card-subtitle {
+	color: #64748b;
+}
+
+body[data-path="login"] .form-control,
+body[data-path="update-password"] .form-control {
+	height: 40px;
+	border-radius: 10px;
+	background: #f8fafc;
+	border: 1px solid #e2e8f0;
+	transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+}
+
+body[data-path="login"] .form-control:focus,
+body[data-path="update-password"] .form-control:focus {
+	background: #fff;
+	border-color: var(--db-accent);
+	box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.18);
+}
+
+body[data-path="login"] .page-card-actions .btn-login,
+body[data-path="login"] .page-card-actions .btn-ldap-login,
+body[data-path="update-password"] .btn-primary,
+body[data-path="login"] .btn-forgot {
+	height: 40px;
+	border-radius: 10px !important;
+	font-weight: 600 !important;
+	background: var(--db-accent) !important;
+	color: #fff !important;
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.14) !important;
+}
+
+body[data-path="login"] .page-card-actions .btn-login:hover,
+body[data-path="login"] .page-card-actions .btn-ldap-login:hover,
+body[data-path="update-password"] .btn-primary:hover,
+body[data-path="login"] .btn-forgot:hover {
+	background: var(--db-accent-hover) !important;
+}
+
+body[data-path="login"] a {
+	color: var(--db-accent);
+}
+
+/* Brand panel, added by dealerbase_web.js on wide screens. */
+
+.db-auth-panel {
+	display: none;
+}
+
+@media (min-width: 992px) {
+	body.db-auth-split .db-auth-panel {
+		display: flex;
+		position: fixed;
+		inset: 0 auto 0 0;
+		width: var(--db-panel-width);
+		flex-direction: column;
+		justify-content: space-between;
+		padding: 48px 56px;
+		color: #e0e7ff;
+		background:
+			radial-gradient(120% 80% at 0% 0%, rgba(129, 140, 248, 0.45) 0%, transparent 55%),
+			radial-gradient(90% 70% at 100% 100%, rgba(56, 189, 248, 0.25) 0%, transparent 60%),
+			linear-gradient(160deg, #1e1b4b 0%, #312e81 55%, #3730a3 100%);
+		overflow: hidden;
+		z-index: 1;
+	}
+
+	body.db-auth-split .page-content-wrapper {
+		margin-left: var(--db-panel-width);
+	}
+
+	body.db-auth-split .page-card {
+		box-shadow: none !important;
+		border-color: transparent;
+		background: transparent !important;
+	}
+
+	body.db-auth-split {
+		background: #fff;
+	}
+}
+
+.db-auth-brand {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 20px;
+	font-weight: 700;
+	letter-spacing: -0.02em;
+	color: #fff;
+}
+
+.db-auth-brand img {
+	width: 36px;
+	height: 36px;
+	border-radius: 9px;
+	box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18);
+}
+
+.db-auth-copy h2 {
+	font-size: 38px;
+	line-height: 1.12;
+	font-weight: 700;
+	letter-spacing: -0.03em;
+	color: #fff;
+	margin: 0 0 16px;
+	max-width: 480px;
+}
+
+.db-auth-copy p {
+	font-size: 16px;
+	line-height: 1.6;
+	color: #c7d2fe;
+	max-width: 440px;
+	margin: 0 0 32px;
+}
+
+.db-auth-features {
+	list-style: none;
+	padding: 0;
+	margin: 0;
+	display: grid;
+	gap: 14px;
+}
+
+.db-auth-features li {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	font-size: 15px;
+	color: #e0e7ff;
+}
+
+.db-auth-features li::before {
+	content: "";
+	flex: 0 0 22px;
+	height: 22px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.14)
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 8.5l3 3 6-7'/%3E%3C/svg%3E")
+		center / 12px no-repeat;
+}
+
+.db-auth-foot {
+	font-size: 13px;
+	color: #a5b4fc;
+}

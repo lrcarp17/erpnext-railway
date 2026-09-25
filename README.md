@@ -43,6 +43,8 @@ The stack is three pieces: ERPNext, a private MariaDB, and a Railway bucket for 
 
 **Dealerbase (dealer_management).** The dealer app lives in this repo under `apps/dealer_management/` and is built into the image. Change it here and push: the next build picks up the change (only the steps after the app copy rebuild), and the first boot of the new image backs up the database and runs `bench migrate`. Any other app folder added under `apps/` is installed the same way.
 
+**Dealerbase look and feel.** Signing in lands on the Dealerbase dashboard (`/desk/dealer-home`): KPIs, the inventory pipeline, lot aging, sales trend, follow-ups due and recent activity, with a getting-started checklist on an empty site. The app also brands the desk (accent colour, logo, favicon, app name) and the sign-in page. Branding is applied on install, after each migrate and when the setup wizard finishes, and only where a setting still has its stock value, so a logo, app name or home page you set yourself is kept. Theme files live in `apps/dealer_management/dealer_management/public/css/`.
+
 **Other Frappe apps.** Edit `apps.json` at the repo root (frappe_docker format: `url` + `branch` per app). The Dockerfile builds a custom image from that list and the entrypoint installs each app on the site. Docker caches the cloned apps, so to ship new commits pushed to an app's branch, set the ERPNext service variable `APPS_REVISION` to a new value (e.g. the app's commit hash) and redeploy.
 
 **Private repos.** For private GitHub repositories, use `${GITHUB_TOKEN}` in the URL and set the token as a build argument in Railway:
