@@ -37,7 +37,38 @@ def get_dashboard_data():
         "recent_vehicles": get_recent_vehicles(),
         "recent_sales": get_recent_sales() if can_read_sales else None,
         "leads": get_lead_metrics() if can_read_leads else None,
+        "nav": get_nav_counts(),
     }
+
+
+def get_nav_counts():
+    """Small figures for the home page's navigation tiles, one per list the user can read."""
+    first_of_month = getdate(today()).replace(day=1)
+    this_month = {"creation": [">=", first_of_month]}
+    counts = {}
+
+    def count(doctype, filters=None):
+        if frappe.has_permission(doctype, "read"):
+            counts[doctype] = frappe.db.count(doctype, filters)
+
+    count("Vehicle Acquisition", this_month)
+    count("Vehicle Condition")
+    count("Vehicle Market Info")
+    count("Acquisition Source")
+    count("Listing Platform")
+    count("Lienholder")
+    count("Expense Category")
+
+    if frappe.has_permission("Company Expense", "read"):
+        row = frappe.db.sql(
+            """SELECT COUNT(*) AS count, SUM(COALESCE(amount, 0)) AS total
+            FROM `tabCompany Expense` WHERE expense_date >= %s""",
+            (first_of_month,),
+            as_dict=True,
+        )[0]
+        counts["Company Expense"] = {"count": row.count or 0, "total": flt(row.total)}
+
+    return counts
 
 
 def _lot_age_sql():

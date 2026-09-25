@@ -16,6 +16,8 @@ import frappe
 from frappe import _
 from frappe.utils import cint, flt, getdate, now_datetime, today
 
+from dealer_management.ai_usage import UsageTally, api_error_message, check_budget, is_spend_limit_error
+
 DEFAULT_MODEL = "claude-opus-5"
 MAX_FILE_BYTES = 30 * 1024 * 1024
 
@@ -495,17 +497,23 @@ def _call_claude(content, filename, document_type=None):
         ],
         "output_config": {"format": {"type": "json_schema", "schema": _extraction_schema()}},
     }
+    check_budget()
     default_headers = {"anthropic-workspace-id": workspace_id} if workspace_id else None
     client = anthropic.Anthropic(api_key=api_key, default_headers=default_headers)
+    tally = UsageTally("Document Import", model)
     try:
         try:
-            response = client.beta.messages.create(
-                betas=["server-side-fallback-2026-07-01"], fallbacks="default", **request
+            response = tally.add_raw(
+                client.beta.messages.with_raw_response.create(
+                    betas=["server-side-fallback-2026-07-01"], fallbacks="default", **request
+                )
             )
         except anthropic.BadRequestError as e:
+            if is_spend_limit_error(e):
+                raise
             # Not every account or model accepts server-side fallbacks; retry once without.
             frappe.log_error(title="Document import: retrying without fallbacks", message=_api_error_message(e))
-            response = client.messages.create(**request)
+            response = tally.add_raw(client.messages.with_raw_response.create(**request))
     except anthropic.AuthenticationError:
         frappe.throw(_("The Anthropic API key was rejected. Check Document Import Settings."))
     except anthropic.PermissionDeniedError as e:
@@ -516,14 +524,22 @@ def _call_claude(content, filename, document_type=None):
                 request["model"]
             )
         )
-    except anthropic.RateLimitError:
-        frappe.throw(_("The document reader is busy. Please try again in a minute."))
     except anthropic.APIStatusError as e:
         message = _api_error_message(e)
+        if is_spend_limit_error(e):
+            frappe.throw(
+                _("Your Anthropic account has reached its spend limit: {0}").format(message),
+                title=_("Anthropic Spend Limit Reached"),
+            )
+        if isinstance(e, anthropic.RateLimitError):
+            frappe.throw(_("The document reader is busy. Please try again in a minute."))
         frappe.log_error(title="Document import failed", message=f"{e.status_code}: {message}")
         frappe.throw(_("The document could not be read ({0}): {1}").format(e.status_code, message))
     except anthropic.APIConnectionError:
         frappe.throw(_("Could not reach the document reader. Check the server's internet access."))
+    finally:
+        # Tokens spent on a failed or retried request still count against the budget.
+        tally.save()
 
     if response.stop_reason == "refusal":
         frappe.throw(_("The document reader declined to process this file."))
@@ -536,10 +552,7 @@ def _call_claude(content, filename, document_type=None):
     return _clean_extraction(json.loads(text))
 
 
-def _api_error_message(error):
-    """The API's own explanation, e.g. "Your credit balance is too low..."."""
-    body = error.body if isinstance(error.body, dict) else {}
-    return (body.get("error") or {}).get("message") or error.message
+_api_error_message = api_error_message
 
 
 # Claude accepts images up to 5 MB and 8000 px per side; larger ones are downscaled.
