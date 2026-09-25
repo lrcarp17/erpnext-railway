@@ -2,8 +2,14 @@
 frappe.provide("dealer_management");
 
 dealer_management.render_dashboard = function () {
-  if (frappe.get_route()[0] !== "Workspaces") return;
-  if (frappe.get_route()[1] !== "Dealer Management") return;
+  const route = frappe.get_route();
+  
+  // Check if we're on the Dealer Management workspace
+  // Route can be ["Workspaces", "Dealer Management"] or ["Workspaces", "Dealer%20Management"]
+  if (route[0] !== "Workspaces") return;
+  
+  const workspaceName = decodeURIComponent(route[1] || "");
+  if (workspaceName !== "Dealer Management") return;
 
   const workspace = document.querySelector(".workspace-main-section");
   if (!workspace) return;
@@ -174,10 +180,32 @@ function renderStatusChart(breakdown) {
   });
 }
 
+// Run on page changes
 $(document).on("page-change", function () {
+  setTimeout(dealer_management.render_dashboard, 300);
+});
+
+// Run on route changes
+frappe.router.on("change", function () {
+  setTimeout(dealer_management.render_dashboard, 300);
+});
+
+// Run on initial load after a delay
+$(document).ready(function () {
+  setTimeout(dealer_management.render_dashboard, 500);
+});
+
+// Also try when workspace is fully loaded
+$(document).on("workspace-loaded", function () {
   setTimeout(dealer_management.render_dashboard, 100);
 });
 
-frappe.router.on("change", function () {
-  setTimeout(dealer_management.render_dashboard, 100);
-});
+// Fallback: check periodically for the first few seconds
+let checkCount = 0;
+const checkInterval = setInterval(function () {
+  checkCount++;
+  dealer_management.render_dashboard();
+  if (checkCount >= 10) {
+    clearInterval(checkInterval);
+  }
+}, 500);
