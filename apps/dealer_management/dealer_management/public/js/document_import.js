@@ -2,7 +2,7 @@ frappe.provide("dealer_management.document_import");
 
 (function () {
 // Upload a title, bill of sale, or listing, review what was read, and apply it
-// to the matching Dealer Vehicle (or a new one). Pass `frm` when starting from
+// to the matching Vehicle Inventory (or a new one). Pass `frm` when starting from
 // a vehicle form so the document is checked against that vehicle.
 dealer_management.document_import.open = function (frm) {
     const dialog = new frappe.ui.Dialog({
@@ -292,7 +292,7 @@ function show_review(result, frm) {
         info += `<p class="text-muted">${esc(result.summary)}</p>`;
     }
     info += result.vehicle
-        ? `<p>${__("Matched by VIN to")} <a href="/app/dealer-vehicle/${encodeURIComponent(result.vehicle)}" target="_blank"><b>${esc(result.vehicle_label || result.vehicle)}</b></a>.</p>`
+        ? `<p>${__("Matched by VIN to")} <a href="/app/vehicle-inventory/${encodeURIComponent(result.vehicle)}" target="_blank"><b>${esc(result.vehicle_label || result.vehicle)}</b></a>.</p>`
         : `<p>${__("No vehicle with this VIN exists yet. A new vehicle will be created.")}</p>`;
     if (result.warnings && result.warnings.length) {
         info += `<div class="alert alert-warning"><ul class="mb-0">${result.warnings
@@ -441,7 +441,7 @@ function apply(dialog, result, values, frm) {
             if (frm && frm.doc.name === out.vehicle) {
                 frm.reload_doc();
             } else {
-                frappe.set_route("Form", "Dealer Vehicle", out.vehicle);
+                frappe.set_route("Form", "Vehicle Inventory", out.vehicle);
             }
         },
         always() {

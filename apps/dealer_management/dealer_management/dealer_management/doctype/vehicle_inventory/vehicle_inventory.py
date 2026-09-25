@@ -5,7 +5,7 @@ from frappe.utils import cint, flt, getdate, now_datetime, date_diff, today
 import re
 
 
-class DealerVehicle(Document):
+class VehicleInventory(Document):
     def validate(self):
         self.validate_vin()
         self.calculate_days_on_lot()
@@ -58,7 +58,7 @@ class DealerVehicle(Document):
 
         last_vehicle = frappe.db.sql(
             """
-            SELECT vehicle_id FROM `tabDealer Vehicle`
+            SELECT vehicle_id FROM `tabVehicle Inventory`
             WHERE vehicle_id LIKE %s
             ORDER BY vehicle_id DESC
             LIMIT 1
@@ -83,7 +83,7 @@ class DealerVehicle(Document):
 
         last_stock = frappe.db.sql(
             """
-            SELECT stock_number FROM `tabDealer Vehicle`
+            SELECT stock_number FROM `tabVehicle Inventory`
             WHERE stock_number REGEXP '^[0-9]+$'
             ORDER BY CAST(stock_number AS UNSIGNED) DESC
             LIMIT 1
@@ -157,7 +157,7 @@ class DealerVehicle(Document):
 
 def get_vehicle_summary(vehicle_name):
     """Get a summary of the vehicle for display."""
-    vehicle = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    vehicle = frappe.get_doc("Vehicle Inventory", vehicle_name)
     return {
         "vehicle_id": vehicle.vehicle_id,
         "vin": vehicle.vin,
@@ -181,7 +181,7 @@ def decode_vin(vin):
 @frappe.whitelist()
 def get_vehicle_warnings(vehicle_name):
     """Get a list of warnings/alerts for a vehicle."""
-    doc = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    doc = frappe.get_doc("Vehicle Inventory", vehicle_name)
     warnings = []
 
     if not doc.title_received:
@@ -242,10 +242,10 @@ def upload_vehicle_photos(vehicle_name, files):
     """Upload multiple photos to a vehicle."""
     import json
     
-    frappe.has_permission("Dealer Vehicle", "write", throw=True)
+    frappe.has_permission("Vehicle Inventory", "write", throw=True)
     
     files = json.loads(files) if isinstance(files, str) else files
-    doc = frappe.get_doc("Dealer Vehicle", vehicle_name)
+    doc = frappe.get_doc("Vehicle Inventory", vehicle_name)
     
     for file_url in files:
         doc.append("photos", {

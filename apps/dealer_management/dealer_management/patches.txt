@@ -1,0 +1,4 @@
+[pre_model_sync]
+dealer_management.patches.rename_dealer_vehicle_to_vehicle_inventory
+
+[post_model_sync]

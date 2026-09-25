@@ -7,7 +7,7 @@ frappe.pages["dealer-home"].on_page_load = function (wrapper) {
 		single_column: true,
 	});
 
-	page.set_primary_action(__("Add Vehicle"), () => frappe.new_doc("Dealer Vehicle"), "add");
+	page.set_primary_action(__("Add Vehicle"), () => frappe.new_doc("Vehicle Inventory"), "add");
 	page.set_secondary_action(__("Import Document"), () => dealer_management.document_import.open());
 	page.add_menu_item(__("Refresh"), () => wrapper.dealer_home.refresh());
 
@@ -165,10 +165,10 @@ class DealerHome {
 				title: __("Inventory"),
 				tiles: [
 					{
-						label: __("Vehicles"), icon: "car-front", tone: "indigo", doctype: "Dealer Vehicle", create: true,
+						label: __("Vehicles"), icon: "car-front", tone: "indigo", doctype: "Vehicle Inventory", create: true,
 						desc: __("Every unit from pickup to sale"),
 						stat: __("{0} in stock", [n(inv.total)]),
-						route: ["List", "Dealer Vehicle", { status: ["not in", ["Sold", "Wholesale"]] }],
+						route: ["List", "Vehicle Inventory", { status: ["not in", ["Sold", "Wholesale"]] }],
 					},
 					{
 						label: __("Acquisitions"), icon: "gavel", tone: "orange", doctype: "Vehicle Acquisition", create: true,
@@ -218,7 +218,7 @@ class DealerHome {
 						stat: __("Open chat"),
 					},
 					{
-						label: __("Import Document"), icon: "file-scan", tone: "ai", doctype: "Dealer Vehicle",
+						label: __("Import Document"), icon: "file-scan", tone: "ai", doctype: "Vehicle Inventory",
 						desc: __("Read a title, bill of sale or auction report"),
 						action: "import",
 						stat: __("Upload a file"),
@@ -376,7 +376,7 @@ class DealerHome {
 				"car-front",
 				"indigo",
 				__("{0} at asking", [this.money(inv.total_asking_value)]),
-				["List", "Dealer Vehicle", open_filter]
+				["List", "Vehicle Inventory", open_filter]
 			),
 			this.kpi(
 				__("Front-line Ready"),
@@ -384,7 +384,7 @@ class DealerHome {
 				"circle-check",
 				"green",
 				__("Avg {0} days on lot", [inv.avg_days_on_lot || 0]),
-				["List", "Dealer Vehicle", { status: ["in", ["Frontline", "Available"]] }]
+				["List", "Vehicle Inventory", { status: ["in", ["Frontline", "Available"]] }]
 			),
 		];
 
@@ -426,7 +426,7 @@ class DealerHome {
 					"wrench",
 					"blue",
 					null,
-					["List", "Dealer Vehicle", { status: "In Recon" }]
+					["List", "Vehicle Inventory", { status: "In Recon" }]
 				)
 			);
 		}
@@ -459,7 +459,7 @@ class DealerHome {
 						<div class="db-card-title">${__("Inventory Pipeline")}</div>
 						<div class="db-card-sub">${__("Where every open unit is, from pickup to pending sale")}</div>
 					</div>
-					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Dealer Vehicle"]))}'>${__("View all")} →</a>
+					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Vehicle Inventory"]))}'>${__("View all")} →</a>
 				</div>
 				<div class="db-pipe-bar">${total ? segments : `<div class="db-pipe-seg db-pipe-empty" style="flex:1"></div>`}</div>
 				<div class="db-stages">${stages}</div>
@@ -560,7 +560,7 @@ class DealerHome {
 					.filter(Boolean)
 					.join(" · ");
 				return `
-				<tr class="db-clickable" data-route='${this.esc(JSON.stringify(["Form", "Dealer Vehicle", v.name]))}'>
+				<tr class="db-clickable" data-route='${this.esc(JSON.stringify(["Form", "Vehicle Inventory", v.name]))}'>
 					<td>
 						<div class="db-veh">
 							<span class="db-veh-avatar">${this.icon("car-front")}</span>
@@ -583,7 +583,7 @@ class DealerHome {
 						<div class="db-card-title">${__("Recently Added")}</div>
 						<div class="db-card-sub">${__("Newest units in inventory")}</div>
 					</div>
-					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Dealer Vehicle"]))}'>${__("View all")} →</a>
+					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Vehicle Inventory"]))}'>${__("View all")} →</a>
 				</div>
 				${
 					vehicles.length
@@ -657,7 +657,7 @@ class DealerHome {
 			});
 
 		this.$root.find(".db-stage").on("click", (e) => {
-			frappe.set_route("List", "Dealer Vehicle", { status: e.currentTarget.dataset.status });
+			frappe.set_route("List", "Vehicle Inventory", { status: e.currentTarget.dataset.status });
 		});
 
 		this.$root.find(".db-age-row").on("click", (e) => {
@@ -669,14 +669,14 @@ class DealerHome {
 				stale: ["between", [ago(90), ago(61)]],
 				critical: ["<", ago(90)],
 			};
-			frappe.set_route("List", "Dealer Vehicle", {
+			frappe.set_route("List", "Vehicle Inventory", {
 				status: open_filter,
 				lot_date: ranges[e.currentTarget.dataset.age],
 			});
 		});
 
 		const actions = {
-			"add-vehicle": () => frappe.new_doc("Dealer Vehicle"),
+			"add-vehicle": () => frappe.new_doc("Vehicle Inventory"),
 			import: () => dealer_management.document_import.open(),
 			"ai-settings": () => frappe.set_route("Form", "AI Settings"),
 		};

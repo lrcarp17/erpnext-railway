@@ -1,4 +1,4 @@
-frappe.listview_settings["Dealer Vehicle"] = {
+frappe.listview_settings["Vehicle Inventory"] = {
 	add_fields: ["status", "year", "make", "model", "asking_price"],
 
 	get_indicator: function (doc) {

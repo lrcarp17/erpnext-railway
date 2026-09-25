@@ -18,7 +18,7 @@
    "fieldtype": "Link",
    "in_list_view": 1,
    "label": "Vehicle",
-   "options": "Dealer Vehicle",
+   "options": "Vehicle Inventory",
    "reqd": 1
   },
   {

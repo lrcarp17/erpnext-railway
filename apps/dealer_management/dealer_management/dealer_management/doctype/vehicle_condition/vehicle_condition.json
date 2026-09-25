@@ -55,7 +55,7 @@
       "in_list_view": 1,
       "in_standard_filter": 1,
       "label": "Vehicle",
-      "options": "Dealer Vehicle",
+      "options": "Vehicle Inventory",
       "reqd": 1
     },
     {

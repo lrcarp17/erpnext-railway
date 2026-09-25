@@ -39,7 +39,7 @@
       "is_query_report": 0,
       "label": "Vehicle",
       "link_count": 0,
-      "link_to": "Dealer Vehicle",
+      "link_to": "Vehicle Inventory",
       "link_type": "DocType",
       "onboard": 1,
       "type": "Link"
@@ -289,14 +289,14 @@
       "color": "Blue",
       "doc_view": "New",
       "label": "Add Vehicle",
-      "link_to": "Dealer Vehicle",
+      "link_to": "Vehicle Inventory",
       "type": "DocType"
     },
     {
       "color": "Grey",
       "doc_view": "List",
       "label": "Vehicle List",
-      "link_to": "Dealer Vehicle",
+      "link_to": "Vehicle Inventory",
       "type": "DocType"
     },
     {

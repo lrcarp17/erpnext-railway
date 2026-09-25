@@ -1,4 +1,4 @@
-frappe.ui.form.on("Dealer Vehicle", {
+frappe.ui.form.on("Vehicle Inventory", {
   refresh: function (frm) {
     render_warnings(frm);
     render_upload_button(frm);
@@ -67,7 +67,7 @@ function render_warnings(frm) {
 
   frappe.call({
     method:
-      "dealer_management.dealer_management.doctype.dealer_vehicle.dealer_vehicle.get_vehicle_warnings",
+      "dealer_management.dealer_management.doctype.vehicle_inventory.vehicle_inventory.get_vehicle_warnings",
     args: { vehicle_name: frm.doc.name },
     callback: function (r) {
       if (r.message) {

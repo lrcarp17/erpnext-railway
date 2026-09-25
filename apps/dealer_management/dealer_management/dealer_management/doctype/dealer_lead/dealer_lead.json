@@ -137,7 +137,7 @@
    "fieldname": "original_vehicle",
    "fieldtype": "Link",
    "label": "Original Vehicle",
-   "options": "Dealer Vehicle"
+   "options": "Vehicle Inventory"
   },
   {
    "fieldname": "budget_min",

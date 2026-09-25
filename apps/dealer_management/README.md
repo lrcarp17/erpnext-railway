@@ -41,7 +41,7 @@ bench --site [site-name] migrate
 
 | DocType | Description | Auto-naming |
 |---------|-------------|-------------|
-| **Dealer Vehicle** | Main vehicle inventory record | VH-.YYYY.-.##### |
+| **Vehicle Inventory** | Main vehicle inventory record | VH-.YYYY.-.##### |
 | **Dealer Lead** | Sales leads and customer contacts | LD-.YYYY.-.##### |
 | **Vehicle Sale** | Completed vehicle sales transactions | - |
 | **Vehicle Acquisition** | Vehicle purchase/acquisition records | - |
@@ -121,14 +121,14 @@ Access the Dealer Management workspace from the sidebar for quick access to:
 
 ### Adding a Vehicle
 
-1. Go to Dealer Management > Inventory > Dealer Vehicle
+1. Go to Dealer Management > Inventory > Vehicle Inventory
 2. Click "Add Vehicle"
 3. Enter vehicle details (VIN, Year, Make, Model, etc.)
 4. The system will auto-generate a Vehicle ID (e.g., VH-2024-00001)
 
 ### Recording an Acquisition
 
-1. Create a Dealer Vehicle record first
+1. Create a Vehicle Inventory record first
 2. Go to Acquisition > Vehicle Acquisition
 3. Link to the vehicle and enter acquisition details
 4. Select the acquisition source
@@ -147,10 +147,10 @@ Access the Dealer Management workspace from the sidebar for quick access to:
 
 ## Document Import
 
-Upload a **title**, **bill of sale**, **listing**, or **auction condition report** (PDF, photo, scan, or screenshot) and the app reads it with Claude, matches the VIN to an existing Dealer Vehicle, and shows every proposed change for review before saving.
+Upload a **title**, **bill of sale**, **listing**, or **auction condition report** (PDF, photo, scan, or screenshot) and the app reads it with Claude, matches the VIN to a vehicle in Vehicle Inventory, and shows every proposed change for review before saving.
 
-- **Dealer Vehicle list → Import from Document**: updates the vehicle with the document's VIN, or creates a new one.
-- **Dealer Vehicle form → Update from Document**: same, starting from a vehicle (warns if the VIN doesn't match).
+- **Vehicle Inventory list → Import from Document**: updates the vehicle with the document's VIN, or creates a new one.
+- **Vehicle Inventory form → Update from Document**: same, starting from a vehicle (warns if the VIN doesn't match).
 
 What each document fills in:
 
@@ -182,4 +182,4 @@ MIT License
 
 ## Naming Note
 
-The vehicle and lead DocTypes are named **Dealer Vehicle** and **Dealer Lead** because ERPNext already ships DocTypes called `Vehicle` and `Lead`. Using the same names would clash with ERPNext's own records when the app is installed.
+The vehicle and lead DocTypes are named **Vehicle Inventory** and **Dealer Lead** because ERPNext already ships DocTypes called `Vehicle` and `Lead`. Using the same names would clash with ERPNext's own records when the app is installed. (Vehicle Inventory was called Dealer Vehicle until the `rename_dealer_vehicle_to_vehicle_inventory` patch, which renames it in place on existing sites.)

@@ -129,15 +129,15 @@ def _find_vehicle(identifier):
     if not identifier:
         return None
     identifier = identifier.strip().upper()
-    if frappe.db.exists("Dealer Vehicle", identifier):
+    if frappe.db.exists("Vehicle Inventory", identifier):
         return identifier
     vin_match = frappe.db.get_value(
-        "Dealer Vehicle", {"vin": ("like", f"%{identifier}")}, "name"
+        "Vehicle Inventory", {"vin": ("like", f"%{identifier}")}, "name"
     )
     if vin_match:
         return vin_match
     vin_match = frappe.db.get_value(
-        "Dealer Vehicle", {"vin": identifier}, "name"
+        "Vehicle Inventory", {"vin": identifier}, "name"
     )
     return vin_match
 
@@ -162,7 +162,7 @@ def _vehicle_to_dict(doc):
 
 def tool_search_vehicles(filters=None, limit=10):
     """Search for vehicles matching the given filters."""
-    frappe.has_permission("Dealer Vehicle", "read", throw=True)
+    frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     filters = filters or {}
     db_filters = {}
@@ -179,7 +179,7 @@ def tool_search_vehicles(filters=None, limit=10):
         db_filters["vin"] = ("like", f"%{filters['vin'].upper()}%")
 
     vehicles = frappe.get_all(
-        "Dealer Vehicle",
+        "Vehicle Inventory",
         filters=db_filters,
         fields=["name", "vin", "year", "make", "model", "trim", "status", 
                 "asking_price", "total_investment", "mileage_current", 
@@ -221,13 +221,13 @@ def tool_search_vehicles(filters=None, limit=10):
 
 def tool_get_vehicle_details(identifier):
     """Get full details for a specific vehicle."""
-    frappe.has_permission("Dealer Vehicle", "read", throw=True)
+    frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     vehicle_id = _find_vehicle(identifier)
     if not vehicle_id:
         return {"error": f"No vehicle found matching '{identifier}'"}
 
-    doc = frappe.get_doc("Dealer Vehicle", vehicle_id)
+    doc = frappe.get_doc("Vehicle Inventory", vehicle_id)
     return {
         "id": doc.name,
         "vin": doc.vin,
@@ -261,13 +261,13 @@ def tool_get_vehicle_details(identifier):
 
 def tool_update_vehicle(identifier, fields):
     """Update fields on a vehicle."""
-    frappe.has_permission("Dealer Vehicle", "write", throw=True)
+    frappe.has_permission("Vehicle Inventory", "write", throw=True)
 
     vehicle_id = _find_vehicle(identifier)
     if not vehicle_id:
         return {"error": f"No vehicle found matching '{identifier}'"}
 
-    doc = frappe.get_doc("Dealer Vehicle", vehicle_id)
+    doc = frappe.get_doc("Vehicle Inventory", vehicle_id)
 
     allowed_fields = {
         "status", "asking_price", "floor_price", "stock_number",
@@ -296,14 +296,14 @@ def tool_update_vehicle(identifier, fields):
 
 def tool_get_inventory_summary():
     """Get inventory statistics."""
-    frappe.has_permission("Dealer Vehicle", "read", throw=True)
+    frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     status_counts = frappe.db.sql(
         """
         SELECT status, COUNT(*) as count, 
                SUM(COALESCE(asking_price, 0)) as total_asking,
                SUM(COALESCE(total_investment, 0)) as total_investment
-        FROM `tabDealer Vehicle`
+        FROM `tabVehicle Inventory`
         WHERE status NOT IN ('Sold', 'Wholesale')
         GROUP BY status
         """,
@@ -359,7 +359,7 @@ def tool_get_sales_summary(period="this_month"):
 
 def tool_bulk_update_vehicles(filters, fields):
     """Update multiple vehicles matching the filters."""
-    frappe.has_permission("Dealer Vehicle", "write", throw=True)
+    frappe.has_permission("Vehicle Inventory", "write", throw=True)
 
     search_result = tool_search_vehicles(filters, limit=100)
     if not search_result["vehicles"]:
@@ -443,7 +443,7 @@ def chat(message, conversation_history=None):
         get_anthropic_credentials,
     )
 
-    frappe.has_permission("Dealer Vehicle", "read", throw=True)
+    frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     api_key, workspace_id, model = get_anthropic_credentials()
     if not api_key:

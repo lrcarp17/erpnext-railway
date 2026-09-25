@@ -24,7 +24,7 @@ def get_dashboard_data():
     Sections the user has no read access to come back as None, so the page can
     hide them instead of failing as a whole.
     """
-    frappe.has_permission("Dealer Vehicle", "read", throw=True)
+    frappe.has_permission("Vehicle Inventory", "read", throw=True)
 
     can_read_sales = frappe.has_permission("Vehicle Sale", "read")
     can_read_leads = frappe.has_permission("Dealer Lead", "read")
@@ -92,7 +92,7 @@ def get_inventory_metrics():
             SUM(COALESCE(asking_price, 0)) as total_asking,
             SUM(COALESCE(total_investment, 0)) as total_investment,
             AVG({_lot_age_sql()}) as avg_age
-        FROM `tabDealer Vehicle`
+        FROM `tabVehicle Inventory`
         WHERE status NOT IN %(closed)s
         """,
         {"closed": CLOSED_STATUSES},
@@ -189,7 +189,7 @@ def get_status_breakdown():
     result = frappe.db.sql(
         """
         SELECT status, COUNT(*) as count
-        FROM `tabDealer Vehicle`
+        FROM `tabVehicle Inventory`
         WHERE status NOT IN %(closed)s
         GROUP BY status
         """,
@@ -211,7 +211,7 @@ def get_aging_buckets():
             SUM(CASE WHEN age > 90 THEN 1 ELSE 0 END) as critical
         FROM (
             SELECT {_lot_age_sql()} as age
-            FROM `tabDealer Vehicle`
+            FROM `tabVehicle Inventory`
             WHERE status NOT IN %(closed)s
         ) t
         """,
@@ -232,7 +232,7 @@ def get_recent_vehicles(limit=6):
         f"""
         SELECT name, year, make, model, `trim`, status, asking_price, stock_number,
             {_lot_age_sql()} as age
-        FROM `tabDealer Vehicle`
+        FROM `tabVehicle Inventory`
         WHERE status NOT IN %(closed)s
         ORDER BY creation DESC
         LIMIT %(limit)s
@@ -249,7 +249,7 @@ def get_recent_sales(limit=5):
         SELECT s.name, s.sale_date, s.buyer_name, s.sale_price, s.gross_profit,
             v.year, v.make, v.model
         FROM `tabVehicle Sale` s
-        LEFT JOIN `tabDealer Vehicle` v ON v.name = s.vehicle
+        LEFT JOIN `tabVehicle Inventory` v ON v.name = s.vehicle
         ORDER BY s.sale_date DESC, s.creation DESC
         LIMIT %(limit)s
         """,
