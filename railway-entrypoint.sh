@@ -13,7 +13,19 @@ cd "$BENCH"
 # An array, not a function: a backgrounded function runs in a subshell that
 # swallows SIGTERM instead of passing it on.
 AS_FRAPPE=(setpriv --reuid=frappe --regid=frappe --init-groups env HOME=/home/frappe)
-: "${DB_HOST:?DB_HOST is not set}" "${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD is not set}"
+if [ -z "${DB_HOST:-}" ]; then
+  echo "railway: ERROR: DB_HOST is not set."
+  echo "railway: This variable should reference the MariaDB service's private domain."
+  echo "railway: In Railway, set DB_HOST to \${{MariaDB.RAILWAY_PRIVATE_DOMAIN}} in the ERPNext service variables."
+  echo "railway: Ensure the MariaDB service is deployed and named 'MariaDB'."
+  exit 1
+fi
+if [ -z "${DB_ROOT_PASSWORD:-}" ]; then
+  echo "railway: ERROR: DB_ROOT_PASSWORD is not set."
+  echo "railway: This variable should reference the MariaDB root password."
+  echo "railway: In Railway, set DB_ROOT_PASSWORD to \${{MariaDB.MARIADB_ROOT_PASSWORD}} in the ERPNext service variables."
+  exit 1
+fi
 
 # Worker counts follow the memory Railway gives this service (the cgroup limit is the
 # plan's per-service cap), never the host's 48 cores.
