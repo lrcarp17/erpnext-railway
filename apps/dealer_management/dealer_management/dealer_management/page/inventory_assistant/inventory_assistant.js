@@ -5,127 +5,41 @@ frappe.pages["inventory-assistant"].on_page_load = function (wrapper) {
     single_column: true,
   });
 
+  const suggestion = (prompt, title, body) => `
+    <button class="ia-suggestion" data-prompt="${frappe.utils.escape_html(prompt)}">
+      <span class="ia-suggestion-title">${title}</span>
+      <span class="ia-suggestion-body">${body}</span>
+    </button>`;
+
   page.main.html(`
     <div class="inventory-assistant-container">
-      <div class="assistant-header">
-        <p class="text-muted">Ask me about your inventory, sales, or make updates using natural language.</p>
-        <div class="example-prompts">
-          <span class="example-prompt" data-prompt="Show me all vehicles awaiting title">Awaiting title</span>
-          <span class="example-prompt" data-prompt="What's our inventory summary?">Inventory summary</span>
-          <span class="example-prompt" data-prompt="How many vehicles did we sell this month?">Sales this month</span>
+      <div class="chat-messages" id="chat-messages">
+        <div class="ia-welcome">
+          <div class="ia-welcome-icon">${frappe.utils.icon("sparkles", "lg")}</div>
+          <h2 class="ia-welcome-title">${__("How can I help today?")}</h2>
+          <p class="ia-welcome-sub">${__("Ask about your inventory and sales, or make updates in plain English.")}</p>
+          <div class="example-prompts">
+            ${suggestion("Show me all vehicles awaiting title", __("Awaiting title"), __("List units still waiting on paperwork"))}
+            ${suggestion("What's our inventory summary?", __("Inventory summary"), __("Counts, value and potential profit"))}
+            ${suggestion("How many vehicles did we sell this month?", __("Sales this month"), __("Units sold and revenue so far"))}
+            ${suggestion("Which vehicles have been on the lot more than 60 days?", __("Aged units"), __("Find inventory that needs attention"))}
+          </div>
         </div>
       </div>
-      <div class="chat-messages" id="chat-messages"></div>
       <div class="chat-input-container">
-        <textarea 
-          id="chat-input" 
-          placeholder="Ask about inventory, update vehicles, get statistics..."
-          rows="1"
-        ></textarea>
-        <button class="btn btn-primary btn-send" id="send-btn">
-          <svg class="icon icon-sm"><use href="#icon-send"></use></svg>
-        </button>
+        <div class="ia-composer">
+          <textarea
+            id="chat-input"
+            placeholder="${__("Ask about inventory, update vehicles, get statistics…")}"
+            rows="1"
+          ></textarea>
+          <button class="btn btn-primary btn-send" id="send-btn" aria-label="${__("Send")}">
+            ${frappe.utils.icon("send", "sm")}
+          </button>
+        </div>
+        <div class="ia-hint">${__("Enter to send · Shift + Enter for a new line")}</div>
       </div>
     </div>
-    <style>
-      .inventory-assistant-container {
-        max-width: 800px;
-        margin: 0 auto;
-        display: flex;
-        flex-direction: column;
-        height: calc(100vh - 200px);
-        min-height: 400px;
-      }
-      .assistant-header {
-        padding: 1rem 0;
-        border-bottom: 1px solid var(--border-color);
-        margin-bottom: 1rem;
-      }
-      .example-prompts {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-        margin-top: 0.5rem;
-      }
-      .example-prompt {
-        background: var(--bg-light-gray);
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.85rem;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .example-prompt:hover {
-        background: var(--bg-dark-gray);
-      }
-      .chat-messages {
-        flex: 1;
-        overflow-y: auto;
-        padding: 1rem 0;
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .chat-message {
-        padding: 0.75rem 1rem;
-        border-radius: 0.75rem;
-        max-width: 85%;
-        line-height: 1.5;
-      }
-      .chat-message.user {
-        background: var(--primary);
-        color: white;
-        align-self: flex-end;
-        margin-left: auto;
-      }
-      .chat-message.assistant {
-        background: var(--bg-light-gray);
-        align-self: flex-start;
-      }
-      .chat-message.assistant pre {
-        background: var(--bg-dark-gray);
-        padding: 0.5rem;
-        border-radius: 0.25rem;
-        overflow-x: auto;
-        margin: 0.5rem 0;
-      }
-      .chat-message.assistant code {
-        font-size: 0.85em;
-      }
-      .chat-message.thinking {
-        background: var(--bg-light-gray);
-        color: var(--text-muted);
-        font-style: italic;
-      }
-      .chat-input-container {
-        display: flex;
-        gap: 0.5rem;
-        padding: 1rem 0;
-        border-top: 1px solid var(--border-color);
-        align-items: flex-end;
-      }
-      #chat-input {
-        flex: 1;
-        border: 1px solid var(--border-color);
-        border-radius: 0.5rem;
-        padding: 0.75rem;
-        resize: none;
-        font-family: inherit;
-        font-size: inherit;
-        max-height: 150px;
-      }
-      #chat-input:focus {
-        outline: none;
-        border-color: var(--primary);
-      }
-      .btn-send {
-        padding: 0.75rem 1rem;
-        border-radius: 0.5rem;
-      }
-      .btn-send:disabled {
-        opacity: 0.5;
-      }
-    </style>
   `);
 
   let conversation = [];
@@ -134,16 +48,31 @@ frappe.pages["inventory-assistant"].on_page_load = function (wrapper) {
   const sendBtn = document.getElementById("send-btn");
 
   function addMessage(content, role) {
+    const welcome = messagesContainer.querySelector(".ia-welcome");
+    if (welcome && role === "user") welcome.remove();
+
+    const row = document.createElement("div");
+    row.className = `chat-row ${role}`;
+    if (role !== "user") {
+      const avatar = document.createElement("div");
+      avatar.className = "chat-avatar";
+      avatar.innerHTML = frappe.utils.icon("sparkles", "sm");
+      row.appendChild(avatar);
+    }
+
     const div = document.createElement("div");
     div.className = `chat-message ${role}`;
     if (role === "assistant") {
       div.innerHTML = frappe.markdown(content);
+    } else if (role === "thinking") {
+      div.innerHTML = '<span class="ia-dots"><span></span><span></span><span></span></span>';
     } else {
       div.textContent = content;
     }
-    messagesContainer.appendChild(div);
+    row.appendChild(div);
+    messagesContainer.appendChild(row);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    return div;
+    return row;
   }
 
   function setLoading(loading) {
@@ -201,15 +130,10 @@ frappe.pages["inventory-assistant"].on_page_load = function (wrapper) {
 
   sendBtn.addEventListener("click", sendMessage);
 
-  document.querySelectorAll(".example-prompt").forEach((el) => {
+  wrapper.querySelectorAll(".ia-suggestion").forEach((el) => {
     el.addEventListener("click", () => {
       input.value = el.dataset.prompt;
-      input.focus();
+      sendMessage();
     });
   });
-
-  addMessage(
-    "Hi! I'm your inventory assistant. I can help you search vehicles, check statistics, and make updates. What would you like to know?",
-    "assistant"
-  );
 };

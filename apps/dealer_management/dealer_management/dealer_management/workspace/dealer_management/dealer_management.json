@@ -203,9 +203,9 @@
       "dependencies": "",
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Listing Platform",
+      "label": "AI Settings",
       "link_count": 0,
-      "link_to": "Listing Platform",
+      "link_to": "AI Settings",
       "link_type": "DocType",
       "onboard": 0,
       "type": "Link"
@@ -214,26 +214,15 @@
       "dependencies": "",
       "hidden": 0,
       "is_query_report": 0,
-      "label": "Acquisition Source",
+      "label": "Document Import Settings",
       "link_count": 0,
-      "link_to": "Acquisition Source",
-      "link_type": "DocType",
-      "onboard": 0,
-      "type": "Link"
-    },
-    {
-      "dependencies": "",
-      "hidden": 0,
-      "is_query_report": 0,
-      "label": "Expense Category",
-      "link_count": 0,
-      "link_to": "Expense Category",
+      "link_to": "Document Import Settings",
       "link_type": "DocType",
       "onboard": 0,
       "type": "Link"
     }
   ],
-  "modified": "2024-01-01 00:00:00.000000",
+  "modified": "2026-09-25 12:00:00.000000",
   "modified_by": "Administrator",
   "module": "Dealer Management",
   "name": "Dealer Management",
@@ -272,7 +261,14 @@
   "sequence_id": 1,
   "shortcuts": [
     {
-      "color": "Yellow",
+      "color": "Blue",
+      "icon": "home",
+      "label": "Dashboard",
+      "link_to": "dealer-home",
+      "type": "Page"
+    },
+    {
+      "color": "Purple",
       "icon": "chat",
       "label": "Inventory Assistant",
       "link_to": "inventory-assistant",

@@ -1,0 +1,177 @@
+/*
+ * Dealerbase desk theme.
+ *
+ * Layers a brand accent and a few finishing touches over Frappe's own design
+ * system. It mostly re-points Frappe's CSS variables, so every standard screen
+ * (lists, forms, reports, dialogs) picks up the brand without per-page rules.
+ */
+
+:root,
+html[data-theme="light"] {
+	--db-accent: #4f46e5;
+	--db-accent-hover: #4338ca;
+	--db-accent-soft: #eef2ff;
+	--db-accent-softer: #f5f7ff;
+	--db-accent-ink: #3730a3;
+	--db-ring: 0 0 0 3px rgba(79, 70, 229, 0.18);
+
+	--primary: var(--db-accent);
+	--brand-color: var(--db-accent);
+	--btn-primary: var(--db-accent);
+	--primary-color: var(--db-accent);
+	--border-primary: var(--db-accent);
+	--checkbox-color: var(--db-accent);
+	--checkbox-focus-shadow: var(--db-ring);
+	--sidebar-active-color: var(--db-accent-soft);
+	--highlight-shadow: 0 0 0 3px rgba(79, 70, 229, 0.25);
+}
+
+html[data-theme="dark"] {
+	--db-accent: #818cf8;
+	--db-accent-hover: #a5b4fc;
+	--db-accent-soft: rgba(129, 140, 248, 0.16);
+	--db-accent-softer: rgba(129, 140, 248, 0.08);
+	--db-accent-ink: #c7d2fe;
+	--db-ring: 0 0 0 3px rgba(129, 140, 248, 0.3);
+
+	--primary: var(--db-accent);
+	--brand-color: var(--db-accent);
+	--btn-primary: #6366f1;
+	--primary-color: var(--db-accent);
+	--border-primary: var(--db-accent);
+	--checkbox-color: #6366f1;
+	--checkbox-focus-shadow: var(--db-ring);
+	--sidebar-active-color: var(--db-accent-soft);
+	--highlight-shadow: 0 0 0 3px rgba(129, 140, 248, 0.3);
+}
+
+/* ---------- Buttons ---------- */
+
+.btn.btn-primary {
+	background-color: var(--btn-primary);
+	color: #fff;
+	--icon-stroke: #fff;
+	--icon-fill-bg: var(--btn-primary);
+	box-shadow: 0 1px 2px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+	transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.btn.btn-primary:hover,
+.btn.btn-primary:focus {
+	background-color: var(--db-accent-hover);
+	color: #fff;
+}
+
+.btn.btn-primary:active {
+	background-color: var(--db-accent-hover) !important;
+	color: #fff !important;
+}
+
+.btn:focus-visible,
+.form-control:focus,
+.awesomplete input:focus {
+	box-shadow: var(--db-ring) !important;
+}
+
+/* ---------- Links ---------- */
+
+.frappe-control a:not(.btn),
+.form-dashboard a:not(.btn),
+.timeline-content a:not(.btn) {
+	color: var(--db-accent);
+}
+
+/* ---------- Sidebar ---------- */
+
+.body-sidebar .active-sidebar {
+	background: var(--db-accent-soft);
+	box-shadow: none;
+}
+
+.body-sidebar .active-sidebar .item-anchor,
+.body-sidebar .active-sidebar .sidebar-item-label {
+	color: var(--db-accent-ink);
+	font-weight: 600;
+}
+
+.body-sidebar .active-sidebar .sidebar-item-icon svg,
+.body-sidebar .active-sidebar .sidebar-item-icon .icon {
+	color: var(--db-accent);
+	--icon-stroke: var(--db-accent);
+}
+
+.body-sidebar .section-break .sidebar-item-label {
+	font-size: 11px;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--text-light, var(--gray-500));
+}
+
+/* ---------- Page chrome ---------- */
+
+.page-head .page-title .title-text {
+	font-weight: 650;
+	letter-spacing: -0.015em;
+}
+
+.page-head {
+	backdrop-filter: saturate(180%) blur(8px);
+}
+
+/* ---------- Lists ---------- */
+
+.list-row-container .list-row:hover,
+.list-row-container:hover .list-row {
+	background-color: var(--db-accent-softer);
+}
+
+.list-row-head {
+	font-weight: 600;
+}
+
+.list-row-col .indicator-pill,
+.indicator-pill {
+	font-weight: 550;
+	border-radius: 999px;
+}
+
+/* ---------- Forms ---------- */
+
+.form-tabs-list .nav-link.active {
+	color: var(--db-accent-ink);
+	border-bottom-color: var(--db-accent) !important;
+}
+
+.form-section .section-head {
+	font-weight: 600;
+	letter-spacing: -0.01em;
+}
+
+/* ---------- Dialogs & popovers ---------- */
+
+.modal-content {
+	border-radius: 14px;
+	box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.04);
+}
+
+.dropdown-menu {
+	border-radius: 10px;
+}
+
+/* ---------- Progress, switches, charts ---------- */
+
+.progress-bar {
+	background-color: var(--db-accent);
+}
+
+.frappe-control input[type="checkbox"]:checked {
+	background-color: var(--db-accent);
+	border-color: var(--db-accent);
+}
+
+/* ---------- Selection ---------- */
+
+::selection {
+	background: rgba(99, 102, 241, 0.22);
+}
