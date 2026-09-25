@@ -1,15 +1,15 @@
-// Dealerbase home: the dashboard users land on after signing in.
+// Dealerbase home: where users land after signing in. It is the way into every
+// part of the app, with a short overview of the business underneath.
 frappe.pages["dealer-home"].on_page_load = function (wrapper) {
 	const page = frappe.ui.make_app_page({
 		parent: wrapper,
-		title: __("Dashboard"),
+		title: __("Home"),
 		single_column: true,
 	});
 
 	page.set_primary_action(__("Add Vehicle"), () => frappe.new_doc("Dealer Vehicle"), "add");
 	page.set_secondary_action(__("Import Document"), () => dealer_management.document_import.open());
 	page.add_menu_item(__("Refresh"), () => wrapper.dealer_home.refresh());
-	page.add_menu_item(__("Inventory Assistant"), () => frappe.set_route("inventory-assistant"));
 
 	wrapper.dealer_home = new DealerHome(page);
 };
@@ -96,28 +96,31 @@ class DealerHome {
 		const inv = d.inventory || {};
 		const has_sales = d.sales && d.sales.this_year && d.sales.this_year.count;
 		const is_empty = !inv.total && !has_sales;
+		const aging = this.aging_html(d.aging || [], inv);
 
 		this.$root.html(`
 			${this.hero_html(inv, d.leads)}
 			${is_empty ? this.onboarding_html() : ""}
+			${this.nav_html(d)}
+			<h2 class="db-section-title">${__("At a glance")}</h2>
 			<div class="db-kpis">${this.kpis_html(inv, d.sales)}</div>
 			${this.pipeline_html(d.status_breakdown || [], inv.total)}
 			<div class="db-grid db-grid-2-1">
-				${d.sales ? this.trend_card_html(d.sales) : ""}
-				${this.aging_html(d.aging || [], inv)}
-			</div>
-			<div class="db-grid db-grid-2-1">
 				${this.recent_vehicles_html(d.recent_vehicles || [])}
-				<div class="db-stack">
-					${d.leads ? this.follow_ups_html(d.leads) : ""}
-					${this.assistant_card_html()}
-				</div>
+				${d.leads ? this.follow_ups_html(d.leads) : aging}
 			</div>
-			${d.recent_sales ? this.recent_sales_html(d.recent_sales) : ""}
+			${
+				d.sales
+					? `<div class="db-grid db-grid-2-1">${this.trend_card_html(d.sales)}${d.leads ? aging : ""}</div>`
+					: d.leads
+					? aging
+					: ""
+			}
 		`);
 
 		if (d.sales) this.render_trend_chart(d.sales.trend || []);
 		this.bind_events();
+		this.restore_search();
 	}
 
 	hero_html(inv, leads) {
@@ -138,20 +141,187 @@ class DealerHome {
 					<h1 class="db-hero-title">${this.esc(this.greeting())}, ${this.esc(this.first_name())}</h1>
 					<p class="db-hero-sub">${summary}</p>
 				</div>
-				<div class="db-quick">
-					${this.quick_action("add-vehicle", "car-front", __("Add Vehicle"))}
-					${this.quick_action("add-lead", "user-plus", __("New Lead"))}
-					${this.quick_action("record-sale", "dollar-sign", __("Record Sale"))}
-					${this.quick_action("add-expense", "wallet", __("Log Expense"))}
-				</div>
+				<label class="db-search">
+					${frappe.utils.icon("search", "sm")}
+					<input type="search" class="db-search-input" placeholder="${__("Jump to… vehicles, leads, expenses")}"
+						aria-label="${__("Find a feature")}" autocomplete="off">
+				</label>
 			</div>`;
 	}
 
-	quick_action(action, icon, label) {
-		return `<button class="db-quick-btn" data-action="${action}">
-			<span class="db-quick-icon">${this.icon(icon)}</span>
-			<span>${this.esc(label)}</span>
-		</button>`;
+	// ---------- navigation ----------
+
+	nav_sections(d) {
+		const inv = d.inventory || {};
+		const nav = d.nav || {};
+		const leads = d.leads;
+		const sales = d.sales;
+		const n = (v) => format_number(v || 0, null, 0);
+		const counted = (doctype, label) => (nav[doctype] != null ? __(label, [n(nav[doctype])]) : null);
+		const expenses = nav["Company Expense"];
+
+		return [
+			{
+				title: __("Inventory"),
+				tiles: [
+					{
+						label: __("Vehicles"), icon: "car-front", tone: "indigo", doctype: "Dealer Vehicle", create: true,
+						desc: __("Every unit from pickup to sale"),
+						stat: __("{0} in stock", [n(inv.total)]),
+						route: ["List", "Dealer Vehicle", { status: ["not in", ["Sold", "Wholesale"]] }],
+					},
+					{
+						label: __("Acquisitions"), icon: "gavel", tone: "orange", doctype: "Vehicle Acquisition", create: true,
+						desc: __("Auction buys, trade-ins and purchases"),
+						stat: counted("Vehicle Acquisition", "{0} this month"),
+					},
+					{
+						label: __("Inspections"), icon: "clipboard-check", tone: "cyan", doctype: "Vehicle Condition", create: true,
+						desc: __("Condition reports and smog status"),
+						stat: counted("Vehicle Condition", "{0} reports"),
+					},
+					{
+						label: __("Market Values"), icon: "tag", tone: "violet", doctype: "Vehicle Market Info", create: true,
+						desc: __("Retail, wholesale and trade-in values"),
+						stat: counted("Vehicle Market Info", "{0} valuations"),
+					},
+				],
+			},
+			{
+				title: __("Sales & Customers"),
+				tiles: [
+					{
+						label: __("Leads"), icon: "users", tone: "blue", doctype: "Dealer Lead", create: true,
+						desc: __("Prospects, follow-ups and appointments"),
+						stat: leads ? __("{0} open", [n(leads.open)]) : null,
+						badge: leads && leads.follow_ups_due ? __("{0} due", [leads.follow_ups_due]) : null,
+					},
+					{
+						label: __("Sales"), icon: "handshake", tone: "green", doctype: "Vehicle Sale", create: true,
+						desc: __("Deals, financing and gross profit"),
+						stat: sales ? __("{0} this month", [n(sales.this_month.count)]) : null,
+					},
+					{
+						label: __("Expenses"), icon: "receipt", tone: "rose", doctype: "Company Expense", create: true,
+						desc: __("Rent, payroll, fees and other overhead"),
+						stat: expenses ? __("{0} this month", [this.money(expenses.total)]) : null,
+					},
+				],
+			},
+			{
+				title: __("AI Tools"),
+				tiles: [
+					{
+						label: __("Inventory Assistant"), icon: "sparkles", tone: "ai",
+						desc: __("Ask questions and update vehicles in plain English"),
+						route: ["inventory-assistant"],
+						stat: __("Open chat"),
+					},
+					{
+						label: __("Import Document"), icon: "file-scan", tone: "ai", doctype: "Dealer Vehicle",
+						desc: __("Read a title, bill of sale or auction report"),
+						action: "import",
+						stat: __("Upload a file"),
+					},
+				],
+			},
+		];
+	}
+
+	setup_links() {
+		return [
+			{ label: __("Acquisition Sources"), icon: "map-pin", doctype: "Acquisition Source" },
+			{ label: __("Listing Platforms"), icon: "megaphone", doctype: "Listing Platform" },
+			{ label: __("Lienholders"), icon: "landmark", doctype: "Lienholder" },
+			{ label: __("Expense Categories"), icon: "folder-tree", doctype: "Expense Category" },
+			{ label: __("AI Settings"), icon: "settings", doctype: "AI Settings", single: true },
+			{ label: __("Document Import Settings"), icon: "sliders-horizontal", doctype: "Document Import Settings", single: true },
+			{ label: __("AI Usage Log"), icon: "gauge", doctype: "AI Usage Log" },
+		].filter((l) => frappe.model.can_read(l.doctype));
+	}
+
+	nav_html(d) {
+		const sections = this.nav_sections(d)
+			.map((section) => ({
+				...section,
+				tiles: section.tiles.filter((t) => !t.doctype || frappe.model.can_read(t.doctype)),
+			}))
+			.filter((section) => section.tiles.length);
+
+		const tile = (t) => {
+			const route = t.route || ["List", t.doctype];
+			const can_create = t.create && frappe.model.can_create(t.doctype);
+			const search = [t.label, t.desc, t.doctype].filter(Boolean).join(" ").toLowerCase();
+			const target = t.action
+				? `data-action="${t.action}"`
+				: `data-route='${this.esc(JSON.stringify(route))}'`;
+			return `
+				<div class="db-tile" tabindex="0" role="link" data-search="${this.esc(search)}" ${target}>
+					<div class="db-tile-top">
+						<span class="db-tile-icon db-tone-${t.tone}">${this.icon(t.icon)}</span>
+						${t.badge ? `<span class="db-badge db-badge-amber">${this.esc(t.badge)}</span>` : ""}
+						${
+							can_create
+								? `<button class="db-tile-new" data-new="${this.esc(t.doctype)}"
+									title="${this.esc(__("New {0}", [__(t.doctype)]))}">
+									${frappe.utils.icon("plus", "sm")}<span>${__("New")}</span></button>`
+								: ""
+						}
+					</div>
+					<div class="db-tile-label">${this.esc(t.label)}</div>
+					<div class="db-tile-desc">${this.esc(t.desc)}</div>
+					${t.stat ? `<div class="db-tile-stat">${this.esc(t.stat)} <span aria-hidden="true">→</span></div>` : ""}
+				</div>`;
+		};
+
+		const setup = this.setup_links();
+		const setup_html = setup.length
+			? `<div class="db-nav-group">
+				<div class="db-nav-title">${__("Setup")}</div>
+				<div class="db-setup-links">
+					${setup
+						.map((l) => {
+							const route = l.single ? ["Form", l.doctype] : ["List", l.doctype];
+							return `<a class="db-setup-link" href="#" data-search="${this.esc(l.label.toLowerCase())}"
+								data-route='${this.esc(JSON.stringify(route))}'>${this.icon(l.icon)}<span>${this.esc(l.label)}</span></a>`;
+						})
+						.join("")}
+				</div>
+			</div>`
+			: "";
+
+		return `
+			<nav class="db-nav" aria-label="${__("Dealerbase features")}">
+				${sections
+					.map(
+						(section) => `
+					<div class="db-nav-group">
+						<div class="db-nav-title">${this.esc(section.title)}</div>
+						<div class="db-tiles">${section.tiles.map(tile).join("")}</div>
+					</div>`
+					)
+					.join("")}
+				${setup_html}
+				<div class="db-empty db-nav-none" hidden>${__("Nothing matches that search.")}</div>
+			</nav>`;
+	}
+
+	filter_nav(query) {
+		query = (query || "").trim().toLowerCase();
+		const $items = this.$root.find(".db-tile, .db-setup-link");
+		$items.each((_, el) => {
+			el.hidden = !!query && !el.dataset.search.includes(query);
+		});
+		this.$root.find(".db-nav-group").each((_, group) => {
+			group.hidden = !$(group).find(".db-tile:not([hidden]), .db-setup-link:not([hidden])").length;
+		});
+		this.$root.find(".db-nav-none").prop("hidden", !query || $items.filter(":not([hidden])").length > 0);
+	}
+
+	restore_search() {
+		// A refresh re-renders the page; keep what the user had typed.
+		this.$root.find(".db-search-input").val(this.search_query || "");
+		if (this.search_query) this.filter_nav(this.search_query);
 	}
 
 	onboarding_html() {
@@ -455,48 +625,6 @@ class DealerHome {
 			</div>`;
 	}
 
-	assistant_card_html() {
-		return `
-			<div class="db-card db-ai db-clickable" data-route='${this.esc(JSON.stringify(["inventory-assistant"]))}'>
-				<div class="db-ai-icon">${this.icon("sparkles")}</div>
-				<div>
-					<div class="db-ai-title">${__("Ask the Inventory Assistant")}</div>
-					<div class="db-ai-text">${__("“Which units have been on the lot over 60 days?”")}</div>
-				</div>
-			</div>`;
-	}
-
-	recent_sales_html(sales) {
-		if (!sales.length) return "";
-		const rows = sales
-			.map((s) => {
-				const vehicle = [s.year, s.make, s.model].filter(Boolean).join(" ");
-				const gp = flt(s.gross_profit);
-				return `
-				<tr class="db-clickable" data-route='${this.esc(JSON.stringify(["Form", "Vehicle Sale", s.name]))}'>
-					<td><div class="db-veh-title">${this.esc(vehicle || s.name)}</div><div class="db-veh-sub">${this.esc(s.buyer_name || "")}</div></td>
-					<td class="db-muted">${s.sale_date ? this.esc(frappe.datetime.str_to_user(s.sale_date)) : "—"}</td>
-					<td class="db-num">${this.esc(dealer_management.full_currency(s.sale_price))}</td>
-					<td class="db-num ${gp < 0 ? "db-neg" : "db-pos"}">${s.gross_profit == null ? "—" : this.esc(dealer_management.full_currency(gp))}</td>
-				</tr>`;
-			})
-			.join("");
-		return `
-			<div class="db-card db-card-flush">
-				<div class="db-card-head">
-					<div>
-						<div class="db-card-title">${__("Recent Sales")}</div>
-						<div class="db-card-sub">${__("Latest deals and their gross profit")}</div>
-					</div>
-					<a class="db-link" data-route='${this.esc(JSON.stringify(["List", "Vehicle Sale"]))}'>${__("View all")} →</a>
-				</div>
-				<div class="db-table-wrap"><table class="db-table">
-					<thead><tr><th>${__("Vehicle")}</th><th>${__("Date")}</th><th class="db-num">${__("Sale Price")}</th><th class="db-num">${__("Gross")}</th></tr></thead>
-					<tbody>${rows}</tbody>
-				</table></div>
-			</div>`;
-	}
-
 	// ---------- interactions ----------
 
 	bind_events() {
@@ -506,6 +634,27 @@ class DealerHome {
 			e.preventDefault();
 			frappe.set_route(...JSON.parse(e.currentTarget.dataset.route));
 		});
+
+		this.$root.find(".db-tile").on("keydown", (e) => {
+			if (e.key === "Enter" && e.target === e.currentTarget) e.currentTarget.click();
+		});
+		this.$root.find(".db-tile-new").on("click", (e) => {
+			e.stopPropagation();
+			frappe.new_doc(e.currentTarget.dataset.new);
+		});
+
+		this.$root
+			.find(".db-search-input")
+			.on("input", (e) => {
+				this.search_query = e.target.value;
+				this.filter_nav(this.search_query);
+			})
+			.on("keydown", (e) => {
+				// Enter opens the first match.
+				if (e.key !== "Enter") return;
+				const first = this.$root.find(".db-tile:not([hidden]), .db-setup-link:not([hidden])").get(0);
+				if (first) first.click();
+			});
 
 		this.$root.find(".db-stage").on("click", (e) => {
 			frappe.set_route("List", "Dealer Vehicle", { status: e.currentTarget.dataset.status });
@@ -528,9 +677,6 @@ class DealerHome {
 
 		const actions = {
 			"add-vehicle": () => frappe.new_doc("Dealer Vehicle"),
-			"add-lead": () => frappe.new_doc("Dealer Lead"),
-			"record-sale": () => frappe.new_doc("Vehicle Sale"),
-			"add-expense": () => frappe.new_doc("Company Expense"),
 			import: () => dealer_management.document_import.open(),
 			"ai-settings": () => frappe.set_route("Form", "AI Settings"),
 		};
